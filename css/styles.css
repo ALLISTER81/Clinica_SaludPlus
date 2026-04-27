@@ -1,0 +1,364 @@
+/* ====== RESET BÁSICO ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* ====== BODY ====== */
+body {
+    background: #f4f4f4;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* NAVBAR GENERAL */
+.navbar {
+    background: #0a3d62;
+    padding: 18px 30px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO */
+.navbar-logo a {
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+/* ENLACES */
+.navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.navbar-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+/* HOVER */
+.navbar-links li a:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* PÁGINA ACTIVA */
+.navbar-links li a.active {
+    background: white;
+    color: #0a3d62;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+
+
+/* ======== CONTENEDOR GENERAL HERO ========*/
+.hero-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* <-- CENTRA TODO */
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* TEXTO FUERA DEL SLIDER */
+.hero-texto {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.hero-texto h1 {
+    font-size: 40px;
+    color: #0056b3;
+    margin: 0;
+}
+
+.hero-texto p {
+    font-size: 20px;
+    color: #333;
+    margin-top: 5px;
+}
+
+/* SLIDER */
+.hero-slider {
+    width: 100%;
+    max-width: 900px;
+    height: 350px; /* altura fija */
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;        /* importante */
+    height: 100%;       /* IMPORTANTE: sin esto NO se ven */
+    object-fit: contain; /* no se estiran */
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+
+/* ========= ESTILOS DEL INDEX (tarjetas pequeñas horizontales) =========*/
+.contenedor-noticias {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tarjeta-noticia {
+    display: flex;
+    flex-direction: row; /* HORIZONTAL */
+    gap: 15px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    align-items: center;
+}
+
+.tarjeta-noticia img {
+    width: 160px;    
+    height: 110px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.contenido-noticia {
+    flex: 1;
+}
+
+.contenido-noticia h3 {
+    margin: 0 0 5px 0;
+}
+
+.fecha {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.contenido-noticia p {
+    margin: 0 0 10px 0;
+}
+
+.boton {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+
+/* ====== TARJETAS DE NOTICIAS ====== */
+
+/* Contenedor de cada noticia */
+.tarjeta-blog {
+    width: 100%;
+    max-width: 700px;       /* ancho máximo de la tarjeta */
+    margin: 30px auto;      /* centrado */
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Imagen grande y centrada */
+.tarjeta-blog-img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+/* Contenido compacto */
+.tarjeta-blog-contenido {
+    width: 100%;
+}
+
+/* Título */
+.tarjeta-blog-contenido h3 {
+    margin: 0 0 10px 0;
+}
+
+/* Fecha y autor juntos, sin separación excesiva */
+.tarjeta-blog-fecha,
+.tarjeta-blog-autor {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+/* Texto dentro de las tarjetas de noticias */
+.tarjeta-blog-texto-completa p {
+    margin: 5px 0;      /* reduce el espacio vertical */
+    line-height: 1.3;   /* texto más compacto */
+}
+
+/* Si el texto NO está dividido en <p>, sino en un solo bloque */
+.tarjeta-blog-texto-completa {
+    margin-top: 10px;
+    line-height: 1.4;   /* más compacto */
+}
+ /* Tarjeta de noticia */
+.tarjeta-blog {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover elegante */
+.tarjeta-blog:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Imagen dentro de la tarjeta */
+.tarjeta-blog img {
+    transition: transform 0.4s ease;
+}
+
+/* Zoom suave en la imagen */
+.tarjeta-blog:hover img {
+    transform: scale(1.05);
+}
+
+
+
+/* ====== FORMULARIOS ====== */
+form {
+  max-width: 400px;
+  margin: 40px auto; 
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input,
+form select,
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  width: 100%;
+  padding: 12px;
+  background: #0a3d62;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+    background: #005fcc;
+}
+
+.login-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-container a {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 16px;
+}
+
+.login-container a:hover {
+  color: #005fcc;
+}
+
+
+/* ====== TABLAS ====== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+table th {
+    background: #0078ff;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+    background: #f0f8ff;
+}
+
+
+/* ====== BOTONES DE ACCIÓN ====== */
+a {
+    color: #0078ff;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #005fcc;
+}
+
+.action-delete {
+    color: red;
+}
+
+.action-delete:hover {
+    color: darkred;
+}
