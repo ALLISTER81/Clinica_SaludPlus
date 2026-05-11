@@ -8,18 +8,39 @@
 
 
 /* ====== BODY ====== */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    background: #f4f4f4;
-    padding: 20px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     color: #333;
 }
 
 h1 {
-  margin-top: 40px;
+  font-size: 30px;  
+  margin: 20px auto 15px auto;
   text-align: center;
+  color: #0056b3;   
 }
 
-/* NAVBAR GENERAL */
+hr {
+    border: 0;
+    border-top: 2px solid #e0e0e0;
+    width: 80%;
+    margin: 40px auto 40px auto; 
+    /*   ↑ arriba   ↓ abajo   */
+}
+
+
+/* ================================ */
+/* ======== NAVBAR GENERAL ======== */
+/* ================================ */
 .navbar {
     background: #0a3d62;
     padding: 18px 30px;
@@ -75,54 +96,57 @@ h1 {
 }
 
 
+
+/* =========================================*/
 /* ======== CONTENEDOR GENERAL HERO ========*/
+/* =========================================*/
 .hero-wrapper {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;   /* <-- CENTRA TODO */
-    justify-content: center;
-    margin-top: 20px;
+    align-items: center;
+    margin-top: 0;
+    margin-bottom: 40px;
 }
 
-/* TEXTO FUERA DEL SLIDER */
 .hero-texto {
     text-align: center;
-    margin-bottom: 15px;
+    max-width: 900px;
+    margin: 0 auto 15px auto;
+    padding: 0 20px;
 }
 
 .hero-texto h1 {
-    font-size: 40px;
+    font-size: 30px;
     color: #0056b3;
-    margin: 0;
+    margin-bottom: 10px;
 }
 
 .hero-texto p {
     font-size: 20px;
     color: #333;
-    margin-top: 5px;
+    line-height: 1.3;
+    margin-top: 0;
 }
 
-/* SLIDER */
 .hero-slider {
     width: 100%;
-    max-width: 900px;
-    height: 350px; /* altura fija */
+    max-width: 1100px;
+    height: 500px;
     position: relative;
     overflow: hidden;
     margin: 0 auto;
 }
 
-
 .slide {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;        /* importante */
-    height: 100%;       /* IMPORTANTE: sin esto NO se ven */
-    object-fit: contain; /* no se estiran */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     opacity: 0;
-    transition: opacity 1.5s ease-in-out;
+    transition: opacity 3s ease-in-out;
 }
 
 .slide.active {
@@ -130,64 +154,188 @@ h1 {
 }
 
 
-/* ========= ESTILOS DEL INDEX (tarjetas pequeñas horizontales) =========*/
-.contenedor-noticias {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 900px;
-    margin: 0 auto;
+
+/* =========================================== */
+/* ======== SECCIÓN SERVICIOS MEDICOS ======== */
+/* =========================================== */
+.servicios {
+    padding-top: 40px; /* evita que quede pegado al hr */
+    background: transparent;
+    text-align: center;
 }
 
-.tarjeta-noticia {
+/* TÍTULO DE SERVICIOS */
+.titulo-servicios {
+    font-size: 30px;
+    color: #0056b3; /* azul clínico */
+    text-align: center;
+    margin-top: 0; /* separación desde el hero */
+    margin-bottom: 30px; /* separación con el texto */
+    font-weight: 700;
+}
+
+/* INTRO SERVICIOS */
+.intro-servicios {
+    font-size: 20px;
+    color: #333;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto 40px auto; /* espacio debajo */
+    line-height: 1.6;
+}
+
+/* Texto introductorio centrado en 2–3 líneas */
+.intro-seccion {
+    max-width: 850px;
+    margin: 0 auto 40px auto;
+    font-size: 19px;
+    color: #0056b3; /* azul clínico */
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+/* Dos columnas centradas */
+.servicios-grid {
     display: flex;
-    flex-direction: row; /* HORIZONTAL */
-    gap: 15px;
-    background: #fff;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+
+/* Listas */
+.lista-servicios {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    max-width: 350px;
+}
+
+/* Cada servicio */
+.lista-servicios li {
+    background: white;
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    font-size: 17px;
+    color: #333;
+    display: flex;
     align-items: center;
+    gap: 10px;
+}
+
+/* ✔ verde */
+.lista-servicios li::before {
+    content: "✔";
+    color: #28a745;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+/* ======= Botón cita ====== */
+.boton-cita-contenedor {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 70px; /* AUMENTA EL ESPACIO */
+    margin-bottom: 40px; /* suficiente */
+}
+
+.boton-cita {
+    display: inline-block;
+    background: #0056b3;
+    color: white;
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.boton-cita:hover {
+    background: #003f82;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+}
+
+
+/* ================================== */
+/* ======== SECCIÓN NOTICIAS ======== */
+/* ================================== */
+.titulo-noticias {    
+    font-size: 30px;        /* igual que servicios */
+    color: #0056b3;       /* azul clínico */
+    text-align: center;     /* centrado */
+    margin-bottom: 60px;    /* separación con las tarjetas */
+    font-weight: 700;
+}
+/* ========= Tarjetas pequeñas horizontalescsección nocicias =========*/
+.seccion-noticias {
+    padding-top: 30px;
+    padding-bottom: 150px; /* MÁS ESPACIO PARA QUE EL FOOTER BAJE */
+}
+
+/* Contenedor de tarjetas */
+.contenedor-noticias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+/* Tarjeta individual */
+.tarjeta-noticia {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    width: 320px;
 }
 
 .tarjeta-noticia img {
-    width: 160px;    
-    height: 110px;
+    width: 100%;
+    height: 180px;
     object-fit: cover;
-    border-radius: 8px;
 }
 
 .contenido-noticia {
-    flex: 1;
+    padding: 15px;
 }
 
 .contenido-noticia h3 {
-    margin: 0 0 5px 0;
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #333;
 }
 
 .fecha {
     font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
-}
-
-.contenido-noticia p {
-    margin: 0 0 10px 0;
+    color: #777;
+    margin-bottom: 10px;
 }
 
 .boton {
     display: inline-block;
-    padding: 8px 12px;
-    background: #007bff;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #0056b3;
     color: white;
     border-radius: 6px;
     text-decoration: none;
-    font-size: 14px;
+    transition: 0.3s;
+}
+
+.boton:hover {
+    background: #003f82;
 }
 
 
-/* ====== TARJETAS DE NOTICIAS ====== */
 
+/* ================================== */
+/* ====== TARJETAS DE NOTICIAS ====== */
+/* ================================== */
 /* Contenedor de cada noticia */
 .tarjeta-blog {
     width: 100%;
@@ -259,106 +407,983 @@ h1 {
     transform: scale(1.05);
 }
 
-
-
-/* ====== FORMULARIOS ====== */
-form {
-  max-width: 400px;
-  margin: 40px auto; 
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+/* ============================
+   FORMULARIO DE LOGIN FIJO
+   ============================ */
+.form-login {
+    width: 400px;        /* Un poco más estrecho que registro */
+    max-width: 90%;
+    margin: 60px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    display: block;
 }
 
-form label {
+.form-login label {
     display: block;
-    margin-bottom: 5px;
+    margin-top: 15px;
     font-weight: bold;
 }
 
-form input,
-form select,
-form textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.form-login input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
 }
 
-form button {
-  width: 100%;
-  padding: 12px;
-  background: #0a3d62;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
+.form-login button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-button:hover {
+.form-login button:hover {
+    background: #003f82;
+}
+
+/* ============================
+   FORMULARIO DE REGISTRO FIJO
+   ============================ */
+.form-registro {
+    width: 400px;              /* Ancho estable */
+    max-width: 90%;            /* Para móviles */
+    margin: 40px auto;         /* Centrado vertical y horizontal */
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.form-registro label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.form-registro input,
+.form-registro select,
+.form-registro textarea {
+    width: 100%;               /* Nunca se estrecha */
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.form-registro button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-registro button:hover {
+    background: #003f82;
+}
+
+
+.texto-secundario {
+    margin-top: 15px;
+    margin-bottom: 60px;
+    font-size: 14px;
+    color: #555;
+    text-align: center; 
+}
+
+.texto-secundario a {
+    color: #0056b3;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.texto-secundario a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+/* ============================
+   FORMULARIO "MI PERFIL"
+   ============================ */
+.form-perfil {
+    width: 400px;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.form-perfil h1,
+.form-perfil h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-perfil label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.form-perfil input,
+.form-perfil select,
+.form-perfil textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-perfil button,
+.form-perfil input[type="submit"] {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-perfil button:hover,
+.form-perfil input[type="submit"]:hover {
+    background: #003f82;
+}
+
+
+/* ============================
+   FORMULARIO CREAR CITA
+   ============================ */
+/* Títulos h2 en citaciones.php */
+h2 {
+    margin: 30px auto 15px auto;
+    padding-left: 5px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    max-width: 600px;    
+}
+
+.form-cita {
+    width: 400px;
+    max-width: 95%;
+    margin: 30px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.form-cita label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.form-cita input,
+.form-cita textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-cita button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-cita button:hover {
+    background: #003f82;
+}
+
+
+/* ============================
+   FORMULARIO EDITAR CITA
+   ============================ */
+.form-cita-editar {
+    width: 400px;
+    max-width: 95%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+}
+
+.form-cita-editar label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.form-cita-editar input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-cita-editar button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: #00804b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.form-cita-editar button:hover {
+    background: #00663a;
+}
+
+/* ============================
+   ESTILOS GENERALES ADMINISTRADOR
+   ============================ */
+
+
+/* ===== FORMULARIO ADMIN ===== */
+.admin-section {
+    padding: 40px 0;
+    background: #f4f6f9;
+}
+
+.admin-container {
+    width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.admin-title {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #0056b3;
+    font-size: 26px;
+}
+
+.admin-form label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+    color: #444;
+}
+
+.admin-form input,
+.admin-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.btn-guardar {
+    width: 100%;
+    margin-top: 25px;
+    padding: 12px;
+    background: #0078ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-guardar:hover {
     background: #005fcc;
 }
 
-.login-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.login-container a {
-  display: inline-block;
-  margin-top: 15px;
-  font-size: 16px;
-}
-
-.login-container a:hover {
-  color: #005fcc;
-}
-
-
-/* ====== TABLAS ====== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
-table th {
-    background: #0078ff;
-    color: white;
-    padding: 10px;
-    text-align: left;
-}
-
-table td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-table tr:hover {
-    background: #f0f8ff;
-}
-
-
-/* ====== BOTONES DE ACCIÓN ====== */
-a {
+.btn-volver {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
     color: #0078ff;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.btn-volver:hover {
+    text-decoration: underline;
+}
+
+
+/* TABLAS */
+.admin-table {
+    width: 95%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    background: #ffffff;    
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+}
+
+.admin-table th {
+    background: #0056b3;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-size: 15px;
+}
+
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.admin-table tr:hover {
+    background: #f2f6ff;
+}
+
+/* FORMULARIOS DE CREACIÓN */
+.admin-form {
+    width: 400px;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.admin-form label {
+    display: block;
+    margin-top: 15px;
     font-weight: bold;
 }
 
-a:hover {
-    color: #005fcc;
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
 }
 
-.action-delete {
-    color: red;
+.admin-form button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
 }
 
-.action-delete:hover {
-    color: darkred;
+.admin-form button:hover {
+    background: #003f82;
 }
+
+/* FORMULARIOS DE EDICIÓN */
+.admin-form-edit {
+    width: 400px;
+    max-width: 95%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+}
+
+.admin-form-edit label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.admin-form-edit input,
+.admin-form-edit textarea,
+.admin-form-edit select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.admin-form-edit button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: #00804b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-form-edit button:hover {
+    background: #00663a;
+}
+
+/* BOTONES DE ACCIÓN */
+.admin-btn {
+    padding: 8px 12px;
+    background: #0056b3;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.admin-btn:hover {
+    background: #003f82;
+}
+
+.admin-btn-danger {
+    background: #b30000;
+}
+
+.admin-btn-danger:hover {
+    background: #7a0000;
+}
+
+/* ============================
+   SELECTOR DE USUARIO (ADMIN)
+   ============================ */
+
+.admin-form-selector {
+    width: 400px;
+    max-width: 95%;
+    margin: 30px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.admin-form-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.admin-form-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.admin-form-selector button {
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.admin-form-selector button:hover {
+    background: #003f82;
+}
+
+/* ============================
+   TABLAS DEL ADMINISTRADOR
+   ============================ */
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 14px;
+}
+
+.admin-table tr:hover {
+    background: #f2f6ff;
+}
+
+/* Botones dentro de la tabla */
+.admin-table a {
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    color: white;
+}
+
+.admin-table .btn-edit {
+    background: #00804b;
+}
+
+.admin-table .btn-edit:hover {
+    background: #00663a;
+}
+
+.admin-table .btn-delete {
+    background: #b30000;
+}
+
+.admin-table .btn-delete:hover {
+    background: #7a0000;
+}
+
+/* ============================
+   FORMULARIO CREAR CITA (ADMIN)
+   ============================ */
+
+.admin-form {
+    width: 400px;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.admin-form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.admin-form button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.admin-form button:hover {
+    background: #003f82;
+}
+
+/* ============================
+   MENSAJES DE ERROR Y ÉXITO
+   ============================ */
+.mensaje-error {
+    background: #ffdddd;
+    color: #a30000;
+    padding: 12px;
+    border-left: 4px solid #a30000;
+    margin: 20px auto;
+    border-radius: 6px;
+    max-width: 600px;
+}
+
+.mensaje-exito {
+    background: #ddffdd;
+    color: #006600;
+    padding: 12px;
+    border-left: 4px solid #006600;
+    margin: 20px auto;
+    border-radius: 6px;
+    max-width: 600px;
+}
+
+
+/* ============================= */
+/* ===== PANEL DE NOTICIAS ===== */
+/* ============================= */
+.seccion-titulo {
+    font-size: 22px;
+    margin: 15px auto 20px;
+    color: #000000;
+    text-align: center;
+    font-weight: 600;
+    max-width: 600px; /* Igual que el formulario */
+}
+
+
+.admin-form,
+.admin-form-edit {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+.admin-form label,
+.admin-form-edit label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+    color: #444;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form-edit input,
+.admin-form-edit textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.admin-form button,
+.admin-form-edit button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background: #0078ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.admin-form button:hover,
+.admin-form-edit button:hover {
+    background: #005fcc;
+}
+
+/* Tarjetas de noticias */
+.noticia-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.noticia-card img {
+    width: 100%;
+    max-width: 350px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.noticia-card h3 {
+    margin-bottom: 10px;
+    color: #0056b3;
+}
+
+.noticia-card p {
+    margin: 6px 0;
+}
+
+.noticia-card a {
+    color: #0078ff;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.noticia-card a:hover {
+    text-decoration: underline;
+}
+
+
+/* ============================
+   BOTONES DE ACCIÓN (ADMIN)
+   ============================ */  
+.btn-accion {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.btn-editar {
+    background: #007bff;
+    color: white;
+}
+
+.btn-editar:hover {
+    background: #0056b3;
+}
+
+.btn-borrar {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-borrar:hover {
+    background: #a71d2a;
+}
+
+.cita-card {
+    background: #f8faff;
+    border: 1px solid #dce6ff;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
+/* Resalta el título de la cita */
+
+.cita-card strong {
+    color: #0056b3;
+    font-size: 15px;
+}
+
+.btn-delete-cita {
+    background: #b30000;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.btn-delete-cita:hover {
+    background: #7a0000;
+}
+
+.select-cita {
+    width: 100%;
+    height: 45px;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f8faff;
+}
+
+
+
+/* ================================
+   PANEL ADMINISTRACIÓN DE NOTICIAS
+   ================================ */
+td.acciones {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-table tr:hover {
+    background: #f2f6ff;
+}
+
+/* BOTONES DENTRO DE LA TABLA */
+.admin-table a {
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    color: white;
+}
+
+.admin-table .btn-edit {
+    background: #00804b;
+}
+
+.admin-table .btn-edit:hover {
+    background: #00663a;
+}
+
+.admin-table .btn-delete {
+    background: #b30000;
+}
+
+.admin-table .btn-delete:hover {
+    background: #7a0000;
+}
+
+/* FORMULARIO CREAR NOTICIA */
+.admin-form {
+    width: 400px;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+}
+
+.admin-form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.admin-form textarea {
+    resize: vertical;
+}
+
+.admin-form button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.admin-form button:hover {
+    background: #003f82;
+}
+
+/* FORMULARIO EDITAR NOTICIA */
+.admin-form-edit {
+    width: 400px;
+    max-width: 95%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+}
+
+.admin-form-edit label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.admin-form-edit input,
+.admin-form-edit textarea,
+.admin-form-edit select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.admin-form-edit textarea {
+    resize: vertical;
+}
+
+.admin-form-edit button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: #00804b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.admin-form-edit button:hover {
+    background: #00663a;
+}
+
+
+
+/* =========================== */
+/* ====== PIE DE PÁGINA ====== */
+/* =========================== */
+footer {
+    margin-top: auto;
+    background: #eef2f7;
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 15px;
+    color: #555; /* mismo color que en el index */
+}
+
+
+
+
+

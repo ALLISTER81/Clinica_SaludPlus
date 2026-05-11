@@ -49,37 +49,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
+    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
+    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
     <title>Iniciar sesión</title>
 </head>
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
-<h1>Iniciar sesión</h1>
+    <h1>Iniciar sesión</h1>
 
-<?php if (!empty($errores)): ?>
-    <div class="mensaje-error">
-        <?php foreach ($errores as $e): ?>
-            <p><?= htmlspecialchars($e) ?></p>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
+    <!-- Si el usuario ya está logueado, redirigir a index -->
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <p><?= htmlspecialchars($e) ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-<?php if ($exito): ?>
-    <div class="mensaje-exito">
-        <p><?= htmlspecialchars($exito) ?></p>
-    </div>
-<?php endif; ?>
+    <?php if ($exito): ?>
+        <div class="mensaje-exito">
+            <p><?= htmlspecialchars($exito) ?></p>
+        </div>
+    <?php endif; ?>
 
-<form method="POST">
-    <label>Usuario:</label>
-    <input type="text" name="usuario" required>
+    <form method="POST" class="form-login">
+        <label>Usuario:</label>
+        <input type="text" name="usuario" required>
 
-    <label>Contraseña:</label>
-    <input type="password" name="password" required>
+        <label>Contraseña:</label>
+        <input type="password" name="password" required>
 
-    <button type="submit">Entrar</button>
-</form>
+        <button type="submit">Entrar</button>
+    </form>
+
+    <p class="texto-secundario">
+        ¿No tienes una cuenta?
+        <a href="registro.php">Regístrate aquí</a>
+    </p>
+
+    <footer>
+        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
+    </footer>
 
 </body>
 </html>

@@ -12,15 +12,13 @@ $errores = [];
 $exito = '';
 $idUser = $_SESSION['idUser'];
 
-// Obtener datos del usuario
-$stmt = $pdo->prepare("
-    SELECT ud.*, ul.usuario 
-    FROM users_data ud
-    JOIN users_login ul ON ud.idUser = ul.idUser
-    WHERE ud.idUser = ?
-");
-$stmt->execute([$idUser]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+// Mensaje tras recarga
+if (isset($_GET['exito']) && $_GET['exito'] == 1) {
+    $exito = "Datos actualizados correctamente.";
+}
+if (isset($_GET['exito']) && $_GET['exito'] == 2) {
+    $exito = "Contraseña actualizada correctamente.";
+}
 
 // Si envía formulario de datos personales
 if (isset($_POST['actualizar_datos'])) {
@@ -36,7 +34,7 @@ if (isset($_POST['actualizar_datos'])) {
     $sexo = $_POST['sexo'] ?? null;
 
     if (!in_array($sexo, ['masculino', 'femenino', 'otro'])) {
-        $sexo = 'otro'; // valor por defecto si no se selecciona nada
+        $sexo = 'otro';
     }
 
     if ($nombre === '' || $apellidos === '' || $email === '' || $telefono === '' || $fecha_nacimiento === '') {
@@ -51,7 +49,8 @@ if (isset($_POST['actualizar_datos'])) {
         ");
         $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo, $idUser]);
 
-        $exito = "Datos actualizados correctamente.";
+        header("Location: perfil.php?exito=1");
+        exit;
     }
 }
 
@@ -76,93 +75,114 @@ if (isset($_POST['cambiar_password'])) {
         $stmt = $pdo->prepare("UPDATE users_login SET password=? WHERE idUser=?");
         $stmt->execute([$hash, $idUser]);
 
-        $exito = "Contraseña actualizada correctamente.";
+        header("Location: perfil.php?exito=2");
+        exit;
     }
 }
+
+// Obtener datos del usuario
+$stmt = $pdo->prepare("
+    SELECT ud.*, ul.usuario 
+    FROM users_data ud
+    JOIN users_login ul ON ud.idUser = ul.idUser
+    WHERE ud.idUser = ?
+");
+$stmt->execute([$idUser]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$usuario = $user['usuario'];
+
 ?>
+
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
+    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
+    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
     <title>Perfil</title>
 </head>
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
-<h1>Mi perfil</h1>
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <p><?= htmlspecialchars($e) ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-<?php if (!empty($errores)): ?>
-    <div style="color:red;">
-        <?php foreach ($errores as $e): ?>
-            <p><?= $e ?></p>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
+    <?php if ($exito): ?>
+        <div class="mensaje-exito">
+            <p><?= htmlspecialchars($exito) ?></p>
+        </div>
+    <?php endif; ?>
 
-<?php if ($exito): ?>
-    <div style="color:green;">
-        <p><?= $exito ?></p>
-    </div>
-<?php endif; ?>
+    <h2>Datos personales</h2>
 
-<h2>Datos personales</h2>
+    <form method="POST" class="form-perfil">
+        <input type="hidden" name="actualizar_datos" value="1">
 
-<form method="POST">
-    <input type="hidden" name="actualizar_datos" value="1">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" value="<?= $user['nombre'] ?>" required>
 
-    <label>Nombre:</label>
-    <input type="text" name="nombre" value="<?= $user['nombre'] ?>" required><br>
+        <label>Apellidos:</label>
+        <input type="text" name="apellidos" value="<?= $user['apellidos'] ?>" required><br>
 
-    <label>Apellidos:</label>
-    <input type="text" name="apellidos" value="<?= $user['apellidos'] ?>" required><br>
+        <label>Email:</label>
+        <input type="email" name="email" value="<?= $user['email'] ?>" required><br>
 
-    <label>Email:</label>
-    <input type="email" name="email" value="<?= $user['email'] ?>" required><br>
+        <label>Teléfono:</label>
+        <input type="text" name="telefono" value="<?= $user['telefono'] ?>" required><br>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" value="<?= $user['telefono'] ?>" required><br>
+        <label>Fecha de nacimiento:</label>
+        <input type="date" name="fecha_nacimiento" value="<?= $user['fecha_nacimiento'] ?>" required><br>
 
-    <label>Fecha de nacimiento:</label>
-    <input type="date" name="fecha_nacimiento" value="<?= $user['fecha_nacimiento'] ?>" required><br>
+        <label>Dirección:</label>
+        <input type="text" name="direccion" value="<?= $user['direccion'] ?>"><br>
 
-    <label>Dirección:</label>
-    <input type="text" name="direccion" value="<?= $user['direccion'] ?>"><br>
+        <label>Sexo:</label>
+        <select name="sexo" required>
+            <option value="" disabled <?= empty($user['sexo'])?'selected':'' ?>>Selecciona</option>
+            <option value="masculino" <?= $user['sexo']=='masculino'?'selected':'' ?>>Masculino</option>
+            <option value="femenino" <?= $user['sexo']=='femenino'?'selected':'' ?>>Femenino</option>
+            <option value="otro" <?= $user['sexo']=='otro'?'selected':'' ?>>Otro</option>
+        </select><br>
 
-    <label>Sexo:</label>
-    <select name="sexo" required>
-        <option value="" disabled <?= empty($user['sexo'])?'selected':'' ?>>Selecciona</option>
-        <option value="masculino" <?= $user['sexo']=='masculino'?'selected':'' ?>>Masculino</option>
-        <option value="femenino" <?= $user['sexo']=='femenino'?'selected':'' ?>>Femenino</option>
-        <option value="otro" <?= $user['sexo']=='otro'?'selected':'' ?>>Otro</option>
-    </select><br>
+        <label>Usuario (no modificable):</label>
+        <input type="text" value="<?= $user['usuario'] ?>" disabled><br>
 
-    <label>Usuario (no modificable):</label>
-    <input type="text" value="<?= $user['usuario'] ?>" disabled><br>
+        <button type="submit">Guardar cambios</button>
+    </form>
 
-    <button type="submit">Guardar cambios</button>
-</form>
+    <hr>
 
-<hr>
+    <h2>Cambiar contraseña</h2>
 
-<h2>Cambiar contraseña</h2>
+    <form method="POST" class="form-perfil">
+        <input type="hidden" name="cambiar_password" value="1">
 
-<form method="POST">
-    <input type="hidden" name="cambiar_password" value="1">
+        <label>Contraseña actual:</label>
+        <input type="password" name="password_actual" required><br>
 
-    <label>Contraseña actual:</label>
-    <input type="password" name="password_actual" required><br>
+        <label>Nueva contraseña:</label>
+        <input type="password" name="password_nueva" required><br>
 
-    <label>Nueva contraseña:</label>
-    <input type="password" name="password_nueva" required><br>
+        <label>Repetir nueva contraseña:</label>
+        <input type="password" name="password_repetir" required><br>
 
-    <label>Repetir nueva contraseña:</label>
-    <input type="password" name="password_repetir" required><br>
+        <button type="submit">Cambiar contraseña</button>
+    </form>
 
-    <button type="submit">Cambiar contraseña</button>
-</form>
+    <footer>
+        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
+    </footer>
 
 </body>
 </html>

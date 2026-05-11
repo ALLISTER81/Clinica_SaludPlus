@@ -20,9 +20,9 @@ $current = basename($_SERVER['PHP_SELF']);
 
             <?php if (!isset($_SESSION['idUser'])): ?>
 
-                <!-- VISITANTE -->
-                <li><a href="login.php" class="<?= $current === 'login.php' ? 'active' : '' ?>">Login</a></li>
+                <!-- VISITANTE -->                
                 <li><a href="registro.php" class="<?= $current === 'registro.php' ? 'active' : '' ?>">Registro</a></li>
+                <li><a href="login.php" class="<?= $current === 'login.php' ? 'active' : '' ?>">Login</a></li>
 
             <?php else: ?>
 
@@ -36,8 +36,8 @@ $current = basename($_SERVER['PHP_SELF']);
                 <?php else: ?>
 
                     <!-- USUARIO NORMAL -->
-                    <li><a href="perfil.php" class="<?= $current === 'perfil.php' ? 'active' : '' ?>">Mi perfil</a></li>
-                    <li><a href="citaciones.php" class="<?= $current === 'citaciones.php' ? 'active' : '' ?>">Mis citas</a></li>
+                     <li><a href="citaciones.php" class="<?= $current === 'citaciones.php' ? 'active' : '' ?>">Mis citas</a></li>
+                    <li><a href="perfil.php" class="<?= $current === 'perfil.php' ? 'active' : '' ?>">Mi perfil</a></li>                    
 
                 <?php endif; ?>
 

@@ -2,6 +2,9 @@
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 
+$errores = [];
+$exito = '';
+
 // Solo admins
 if (!isLogged() || !isAdmin()) {
     header("Location: index.php");
@@ -23,24 +26,47 @@ if (isset($_POST['crear'])) {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $rol = $_POST['rol'];
 
-    // Insertar en users_data
-    $stmt = $pdo->prepare("
-        INSERT INTO users_data 
-        (nombre, apellidos, email, telefono, fecha_nacimiento, direccion, sexo)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ");
-    $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo]);
+    // VALIDACIÓN DEL USUARIO (login)
+    if (!preg_match('/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}/', $usuario)) {
+        $errores[] = "El usuario debe incluir mayúscula, minúscula, número y carácter especial (mínimo 6 caracteres).";
+    }
 
-    $idUser = $pdo->lastInsertId();
+    // SI HAY ERRORES → NO SE CREA EL USUARIO
+    if (empty($errores)) {
 
-    // Insertar en users_login
-    $stmt = $pdo->prepare("
-        INSERT INTO users_login 
-        (idUser, usuario, password, rol)
-        VALUES (?, ?, ?, ?)
-    ");
-  $stmt->execute([$idUser, $usuario, $password, $rol]);
+        try {
+
+            // Insertar en users_data
+            $stmt = $pdo->prepare("
+                INSERT INTO users_data 
+                (nombre, apellidos, email, telefono, fecha_nacimiento, direccion, sexo)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo]);
+
+            $idUser = $pdo->lastInsertId();
+
+            // Insertar en users_login
+            $stmt = $pdo->prepare("
+                INSERT INTO users_login 
+                (idUser, usuario, password, rol)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$idUser, $usuario, $password, $rol]);
+
+            $exito = "Usuario creado correctamente.";
+
+        } catch (PDOException $e) {
+
+            if ($e->getCode() == 23000) {
+                $errores[] = "El email o el usuario ya están registrados.";
+            } else {
+                $errores[] = "Error en la base de datos: " . $e->getMessage();
+            }
+        }
+    }
 }
+
 
 // Borrar usuario
 if (isset($_GET['borrar'])) {
@@ -51,8 +77,11 @@ if (isset($_GET['borrar'])) {
 
         $pdo->prepare("DELETE FROM users_login WHERE idUser = ?")->execute([$id]);
         $pdo->prepare("DELETE FROM users_data WHERE idUser = ?")->execute([$id]);
+
+        $exito = "Usuario eliminado correctamente.";
     }
 }
+
 
 // Obtener usuarios
 $stmt = $pdo->query("
@@ -66,85 +95,115 @@ $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Usuarios admin</title>
+    <meta charset="UTF-8">    
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
+    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
+    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
+    <title>Usuarios admin</title>
 </head>
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
-<h1>Administración de usuarios</h1>
+    <h1>Administración de usuarios</h1>
 
-<h2>Crear nuevo usuario</h2>
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <p><?= htmlspecialchars($e) ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-<form method="POST">
+    <?php if (!empty($exito)): ?>
+        <div class="mensaje-exito">
+            <p><?= htmlspecialchars($exito) ?></p>
+        </div>
+    <?php endif; ?>
+
+
+    <h2 class="seccion-titulo">Crear nuevo usuario</h2>
+
+    <form method="POST" class="admin-form">
    
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required>
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required>
 
-    <label>Apellidos:</label>
-    <input type="text" name="apellidos" required>
+        <label>Apellidos:</label>
+        <input type="text" name="apellidos" required>
 
-    <label>Email:</label>
-    <input type="email" name="email" required>
+        <label>Email:</label>
+        <input type="email" name="email" required>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" required>
+        <label>Teléfono:</label>
+        <input type="text" name="telefono" required>
 
-    <label>Fecha nacimiento:</label>
-    <input type="date" name="fecha_nacimiento" required>
+        <label>Fecha nacimiento:</label>
+        <input type="date" name="fecha_nacimiento" required>
 
-    <label>Dirección:</label>
-    <input type="text" name="direccion" required>
+        <label>Dirección:</label>
+        <input type="text" name="direccion" required>
 
-    <label>Sexo:</label>
-    <select name="sexo">
-        <option value="masculino">Masculino</option>
-        <option value="femenino">Femenino</option>
-    </select>
+        <label>Sexo:</label>
+            <select name="sexo" required>
+                <option value="" disabled selected>Selecciona</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+            </select>
 
-    <label>Usuario (login):</label>
-    <input type="text" name="usuario" required>
+        <label>Usuario (login):</label>
+        <input type="text" name="usuario" required>
 
-    <label>Contraseña:</label>
-    <input type="password" name="password" required>
+        <label>Contraseña:</label>
+        <input type="password" name="password" required>
 
-    <label>Rol:</label>
-    <select name="rol">
-        <option value="usuario">Usuario</option>
-        <option value="admin">Administrador</option>
-    </select>
+        <label>Rol:</label>
+            <select name="rol">
+                <option value="usuario">Usuario</option>
+                <option value="admin">Administrador</option>
+            </select>
 
-    <button type="submit" name="crear">Crear usuario</button>
-</form>
+        <button type="submit" name="crear">Crear usuario</button>
+    </form>
 
-<h2>Usuarios existentes</h2>
+    <h2>Usuarios existentes</h2>
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Usuario</th>
-        <th>Rol</th>
-        <th>Acciones</th>
-    </tr>
+    <table class="admin-table">
 
-    <?php foreach ($usuarios as $u): ?>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th class="acciones">Acciones</th>
+        </tr>
+
+        <?php foreach ($usuarios as $u): ?>
         <tr>
             <td><?= $u['idUser'] ?></td>
             <td><?= $u['nombre'] . " " . $u['apellidos'] ?></td>
             <td><?= $u['usuario'] ?></td>
             <td><?= $u['rol'] ?></td>
-            <td>
-                <a href="editar-usuario.php?idUser=<?= $u['idUser'] ?>">Editar</a>
+
+            <td class="acciones">
+                <a class="btn-edit" href="editar-usuario.php?idUser=<?= $u['idUser'] ?>">Editar</a>
+
                 <?php if ($u['idUser'] != $_SESSION['idUser']): ?>
-                    | <a href="?borrar=<?= $u['idUser'] ?>" onclick="return confirm('¿Seguro?')">Borrar</a>
+                    <a class="btn-delete" href="?borrar=<?= $u['idUser'] ?>" onclick="return confirm('¿Seguro?')">Borrar</a>
                 <?php endif; ?>
             </td>
         </tr>
-    <?php endforeach; ?>
-</table>
+        <?php endforeach; ?>
+    </table>
+    
+    <footer>
+        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
+    </footer>
+
 
 </body>
 </html>

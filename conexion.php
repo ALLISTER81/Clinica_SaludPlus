@@ -6,8 +6,12 @@ $pass = 'allister';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
+
+    $pdo->exec("SET time_zone = '+02:00'");
+
+
 } catch (PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }

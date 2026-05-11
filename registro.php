@@ -54,8 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare("
                 INSERT INTO users_login (idUser, usuario, password, rol)
-                VALUES (?,?,?, 'user')
+                VALUES (?,?,?, 'usuario')
             ");
+
             $stmt->execute([$idUser, $usuario, $hash]);
 
             $pdo->commit();
@@ -77,66 +78,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
+    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
+    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
     <title>Registro</title>
 </head>
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
-<h1>Registro de usuario</h1>
+    <h1>Registro de usuario</h1>
 
-<?php if (!empty($errores)): ?>
-    <div style="color:red;">
-        <?php foreach ($errores as $e): ?>
-            <p><?= $e ?></p>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
+    <!-- Si el usuario ya está logueado, redirigir a index -->
+        <?php if (!empty($errores)): ?>
+            <div class="mensaje-error">
+                <?php foreach ($errores as $e): ?>
+                <p><?= htmlspecialchars($e) ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-<?php if ($exito): ?>
-    <div style="color:green;">
-        <p><?= $exito ?></p>
-    </div>
-<?php endif; ?>
+        <?php if ($exito): ?>
+            <div class="mensaje-exito">
+                <p><?= htmlspecialchars($exito) ?></p>
+            </div>
+        <?php endif; ?>
 
-<form method="POST">
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required><br>
+    <form method="POST" class="form-registro">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required><br>
 
-    <label>Apellidos:</label>
-    <input type="text" name="apellidos" required><br>
+        <label>Apellidos:</label>
+        <input type="text" name="apellidos" required><br>
 
-    <label>Email:</label>
-    <input type="email" name="email" required><br>
+        <label>Email:</label>
+        <input type="email" name="email" required><br>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" required><br>
+        <label>Teléfono:</label>
+        <input type="text" name="telefono" required><br>
 
-    <label>Fecha de nacimiento:</label>
-    <input type="date" name="fecha_nacimiento" required><br>
+        <label>Fecha de nacimiento:</label>
+        <input type="date" name="fecha_nacimiento" required><br>
 
-    <label>Dirección:</label>
-    <input type="text" name="direccion"><br>
+        <label>Dirección:</label>
+        <input type="text" name="direccion"><br>
 
-    <label>Sexo:</label>
-    <select name="sexo">
-        <option value="">Selecciona</option>
-        <option value="hombre">Hombre</option>
-        <option value="mujer">Mujer</option>
-        <option value="otro">Otro</option>
-    </select><br>
+        <label>Sexo:</label>
+            <select name="sexo" required>
+                <option value="">Selecciona</option>
+                <option value="masculino">Hombre</option>
+                <option value="femenino">Mujer</option>
+                <option value="otro">Otro</option>
+            </select>
+        <br>
 
-    <label>Usuario:</label>
-    <input type="text" name="usuario" required><br>
+        <label>Usuario:</label>
+        <input type="text" name="usuario" required><br>
 
-    <label>Contraseña:</label>
-    <input type="password" name="password" required><br>
+        <label>Contraseña:</label>
+        <input type="password" name="password" required><br>
 
-    <label>Repetir contraseña:</label>
-    <input type="password" name="password2" required><br>
+        <label>Repetir contraseña:</label>
+        <input type="password" name="password2" required><br>
 
-    <button type="submit">Registrarse</button>
-</form>
+        <button type="submit">Registrarse</button>
+    </form>    
+
+    <footer>
+        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
+    </footer>
 
 </body>
 </html>

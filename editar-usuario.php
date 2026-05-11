@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefono = $_POST['telefono'];
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
     $direccion = $_POST['direccion'];
-    $sexo = $_POST['sexo']; // ahora coincide con ENUM
+    $sexo = $_POST['sexo'];
     $usuario_login = $_POST['usuario'];
     $rol = $_POST['rol'];
 
@@ -58,57 +58,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Editar Usuario</title>
-    <link rel="stylesheet" href="css/styles-editar.css">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
+    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
+    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
+    <title>Editar Usuario</title>    
 </head>
+
 <body>
 
-<div class="contenedor">
-<h2>Editar Usuario</h2>
+    <?php include 'includes/navbar.php'; ?>
 
-<form method="POST">
+    <section class="admin-section">
+        <div class="admin-container">
 
-    <label>Nombre:</label>
-    <input type="text" name="nombre" value="<?= $usuario['nombre'] ?>" required><br>
+            <h2 class="admin-title">Editar Usuario</h2>
 
-    <label>Apellidos:</label>
-    <input type="text" name="apellidos" value="<?= $usuario['apellidos'] ?>" required><br>
+            <form method="POST" class="admin-form">
 
-    <label>Email:</label>
-    <input type="email" name="email" value="<?= $usuario['email'] ?>" required><br>
+                <label>Nombre:</label>
+                <input type="text" name="nombre" value="<?= $usuario['nombre'] ?>" required>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" value="<?= $usuario['telefono'] ?>"><br>
+                <label>Apellidos:</label>
+                <input type="text" name="apellidos" value="<?= $usuario['apellidos'] ?>" required>
 
-    <label>Fecha nacimiento:</label>
-    <input type="date" name="fecha_nacimiento" value="<?= $usuario['fecha_nacimiento'] ?>"><br>
+                <label>Email:</label>
+                <input type="email" name="email" value="<?= $usuario['email'] ?>" required>
 
-    <label>Dirección:</label>
-    <input type="text" name="direccion" value="<?= $usuario['direccion'] ?>"><br>
+                <label>Teléfono:</label>
+                <input type="text" name="telefono" value="<?= $usuario['telefono'] ?>">
 
-    <label>Sexo:</label>
-    <select name="sexo" required>
-        <option value="masculino" <?= $usuario['sexo']=='masculino'?'selected':'' ?>>Hombre</option>
-        <option value="femenino" <?= $usuario['sexo']=='femenino'?'selected':'' ?>>Mujer</option>
-        <option value="otro" <?= $usuario['sexo']=='otro'?'selected':'' ?>>Otro</option>
-    </select><br>
+                <label>Fecha nacimiento:</label>
+                <input type="date" name="fecha_nacimiento" value="<?= $usuario['fecha_nacimiento'] ?>">
 
-    <label>Usuario (login):</label>
-    <input type="text" name="usuario" value="<?= $usuario['usuario'] ?>" required><br>
+                <label>Dirección:</label>
+                <input type="text" name="direccion" value="<?= $usuario['direccion'] ?>">
 
-    <label>Rol:</label>
-    <select name="rol">
-        <option value="usuario" <?= $usuario['rol']=='usuario'?'selected':'' ?>>Usuario</option>
-        <option value="admin" <?= $usuario['rol']=='admin'?'selected':'' ?>>Administrador</option>
-    </select><br>
+                <label>Sexo:</label>
+                <select name="sexo" required>
+                    <option value="masculino" <?= $usuario['sexo']=='masculino'?'selected':'' ?>>Hombre</option>
+                    <option value="femenino" <?= $usuario['sexo']=='femenino'?'selected':'' ?>>Mujer</option>
+                    <option value="otro" <?= $usuario['sexo']=='otro'?'selected':'' ?>>Otro</option>
+                </select>
 
-    <button type="submit" class="boton-guardar">Guardar cambios</button>
-</form>
+                <label>Usuario (login):</label>
+                <input type="text" name="usuario" value="<?= $usuario['usuario'] ?>" required>
 
-<a href="usuarios-administracion.php" class="boton-volver">← Volver</a>
-</div>
+                <label>Rol:</label>
+                    <select name="rol">
+                        <option value="usuario" <?= $usuario['rol']=='usuario'?'selected':'' ?>>Usuario</option>
+                        <option value="admin" <?= $usuario['rol']=='admin'?'selected':'' ?>>Administrador</option>
+                    </select>
+
+                <button type="submit" class="btn-guardar">Guardar cambios</button>
+            </form>
+
+            <a href="usuarios-administracion.php" class="btn-volver">← Volver</a>
+
+         </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
+    </footer>
 
 </body>
 </html>
