@@ -1,0 +1,49 @@
+/* NAVBAR GENERAL */
+.navbar {
+    background: #0a3d62;
+    padding: 15px 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* CONTENEDOR INTERNO */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO */
+.navbar-logo a {
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* LISTA DE ENLACES */
+.navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+/* ENLACES */
+.navbar-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+/* HOVER */
+.navbar-links li a:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* ENLACE ACTIVO */
+.navbar-links li a.active {
+    background: rgba(255,255,255,0.25);
+    font-weight: bold;
+}

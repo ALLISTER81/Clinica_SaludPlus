@@ -1,59 +1,67 @@
 <?php
 require_once 'includes/db.php';
-require_once 'includes/auth.php';
 
 $stmt = $pdo->query("
-    SELECT n.idNoticia, n.titulo, n.imagen, n.texto, n.fecha,
-           u.nombre, u.apellidos
-    FROM noticias n
-    JOIN users_data u ON n.idUser = u.idUser
-    ORDER BY n.fecha DESC
+    SELECT idNoticia, titulo, imagen, texto, fecha
+    FROM noticias
+    ORDER BY fecha DESC
 ");
-$noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$noticias = $stmt->fetchAll();
+?>
+
+<?php 
+$pageTitle = "Noticias médicas";
+$isAdmin = false;
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
-    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
-    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
-    <title>Noticias</title>
+    <?php include 'includes/head.php'; ?>
 </head>
+
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
-    <?php foreach ($noticias as $n): ?>
-        <div class="tarjeta-blog">
+<main>
 
-            <img src="uploads/<?= $n['imagen'] ?>" class="tarjeta-blog-img">
+    <!-- TÍTULO PRINCIPAL -->
+    <section class="page-title">
+        <h1 class="admin-title">Noticias</h1>
+    </section>
 
-            <div class="tarjeta-blog-contenido">
-                <h3><?= $n['titulo'] ?></h3>
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="admin-section">
+        <div class="container">
 
-                <span class="tarjeta-blog-fecha">
-                    <?= date("d/m/Y", strtotime($n['fecha'])) ?>
-                </span>
+            <div class="contenedor-noticias">
 
-                <span class="tarjeta-blog-autor">
-                    Publicado por <?= $n['nombre'] . " " . $n['apellidos'] ?>
-                </span>
+                <?php foreach ($noticias as $n): ?>
+                    <div class="card tarjeta-noticia">
 
-                <p class="tarjeta-blog-texto-completa">
-                    <?= nl2br($n['texto']) ?>
-                </p>
+                        <?php if (!empty($n['imagen'])): ?>
+                            <img src="uploads/<?= $n['imagen'] ?>" alt="<?= $n['titulo'] ?>">
+                        <?php endif; ?>
+
+                        <div class="contenido-noticia">
+                            <h3><?= $n['titulo'] ?></h3>
+                            <p class="fecha"><?= date("d/m/Y", strtotime($n['fecha'])) ?></p>
+                            <p><?= substr($n['texto'], 0, 150) ?>...</p>
+                            <a href="noticia-detalles.php?id=<?= $n['idNoticia'] ?>" class="btn btn-primario tarjeta-blog-btn">Leer más</a>
+                        </div>
+
+                    </div>
+                <?php endforeach; ?>
+
             </div>
+
         </div>
-    
-    <?php endforeach; ?>
-    <footer>
-        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
-    </footer>
+    </section>
+
+</main>
+
+<?php include 'includes/footer.php'; ?>
 
 </body>
 </html>

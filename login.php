@@ -1,100 +1,96 @@
 <?php
-session_start();
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 
 $errores = [];
-$exito = '';
+$mensaje_exito = null;
+
+// Si viene un mensaje de éxito desde otra página (registro, logout, etc.)
+if (isset($_SESSION['mensaje_exito'])) {
+    $mensaje_exito = $_SESSION['mensaje_exito'];
+    unset($_SESSION['mensaje_exito']);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $usuario = trim($_POST['usuario']);
-    $password = trim($_POST['password']);
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    if ($usuario === '' || $password === '') {
-        $errores[] = "Debes introducir usuario y contraseña.";
+    if (login($email, $password)) {
+
+        // Mostrar mensaje en login.php antes de redirigir
+        $mensaje_exito = "Inicio de sesión correcto. Redirigiendo...";
+
+        // Redirige después de 2 segundos
+        header("refresh:2; url=index.php");
+
     } else {
-
-        // Buscar usuario
-        $stmt = $pdo->prepare("
-            SELECT ul.*, ud.nombre
-            FROM users_login ul
-            JOIN users_data ud ON ul.idUser = ud.idUser
-            WHERE ul.usuario = ?
-        ");
-        $stmt->execute([$usuario]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-
-            // Login correcto
-            $_SESSION['idUser'] = $user['idUser'];
-            $_SESSION['rol'] = $user['rol'];
-            $_SESSION['nombre'] = $user['nombre'];
-
-            $exito = "Inicio de sesión correcto. Redirigiendo...";
-
-            // Redirigir después de 2 segundos
-            header("refresh:2; url=index.php");
-
-        } else {
-            $errores[] = "Usuario o contraseña incorrectos.";
-        }
+        $errores[] = "Correo o contraseña incorrectos.";
     }
 }
 ?>
 
+<?php 
+$pageTitle = "Login";
+$isAdmin = false;
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
-    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
-    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
-    <title>Iniciar sesión</title>
+    <?php include 'includes/head.php'; ?>
 </head>
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
-    <h1>Iniciar sesión</h1>
+<main>
 
-    <!-- Si el usuario ya está logueado, redirigir a index -->
-    <?php if (!empty($errores)): ?>
-        <div class="mensaje-error">
-            <?php foreach ($errores as $e): ?>
-                <p><?= htmlspecialchars($e) ?></p>
-            <?php endforeach; ?>
+    <!-- TÍTULO PRINCIPAL -->
+    <section class="page-title">
+        <h1 class="admin-title">Iniciar sesión</h1>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="admin-section">
+        <div class="admin-container">
+
+            <!-- MENSAJE DE ÉXITO -->
+            <?php if (!empty($mensaje_exito)): ?>
+                <div class="mensaje-exito">
+                    <?= htmlspecialchars($mensaje_exito) ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- MENSAJE DE ERROR -->
+            <?php if (!empty($errores)): ?>
+                <div class="mensaje-error">
+                    <?php foreach ($errores as $e): ?>
+                        <?= htmlspecialchars($e) ?><br>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" class="form">
+
+                <label>Email:</label>
+                <input type="email" name="email" required>
+
+                <label>Contraseña:</label>
+                <input type="password" name="password" required>
+
+                <button type="submit" class="btn btn-primario">Entrar</button>
+
+            </form>
+
         </div>
-    <?php endif; ?>
+    </section>
 
-    <?php if ($exito): ?>
-        <div class="mensaje-exito">
-            <p><?= htmlspecialchars($exito) ?></p>
-        </div>
-    <?php endif; ?>
+</main>
 
-    <form method="POST" class="form-login">
-        <label>Usuario:</label>
-        <input type="text" name="usuario" required>
+<?php include 'includes/footer.php'; ?>
 
-        <label>Contraseña:</label>
-        <input type="password" name="password" required>
-
-        <button type="submit">Entrar</button>
-    </form>
-
-    <p class="texto-secundario">
-        ¿No tienes una cuenta?
-        <a href="registro.php">Regístrate aquí</a>
-    </p>
-
-    <footer>
-        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
-    </footer>
+<script src="scripts/mensajes.js"></script>
 
 </body>
 </html>

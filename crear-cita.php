@@ -1,5 +1,5 @@
 <?php
-require 'conexion.php';
+require_once 'includes/db.php';
 
 try {
     $idUser = $_POST['idUser'] ?? null;

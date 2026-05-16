@@ -6,7 +6,7 @@ require_once 'includes/db.php';
 require_once 'includes/auth.php';
 require_once 'includes/imagenes.php';
 
-// Solo admins pueden entrar
+// Solo admins
 if (!isLogged() || !isAdmin()) {
     header("Location: index.php");
     exit;
@@ -21,8 +21,9 @@ if (!is_dir("uploads")) {
     mkdir("uploads", 0755, true);
 }
 
-
-// Crear noticia
+/* ============================================================
+   CREAR NOTICIA
+   ============================================================ */
 if (isset($_POST['crear_noticia'])) {
 
     $titulo = trim($_POST['titulo']);
@@ -33,10 +34,10 @@ if (isset($_POST['crear_noticia'])) {
         $errores[] = "El título y el texto son obligatorios.";
     }
 
-    // Subida segura
     $imagen = subirImagenSegura('imagen', $errores);
 
     if (empty($errores)) {
+
         $stmt = $pdo->prepare("
             INSERT INTO noticias (idUser, titulo, imagen, texto, fecha)
             VALUES (?, ?, ?, ?, ?)
@@ -47,12 +48,13 @@ if (isset($_POST['crear_noticia'])) {
     }
 }
 
-// Borrar noticia
+/* ============================================================
+   BORRAR NOTICIA
+   ============================================================ */
 if (isset($_GET['borrar'])) {
 
     $idNoticia = $_GET['borrar'];
 
-    // Borrar imagen asociada
     $stmt = $pdo->prepare("SELECT imagen FROM noticias WHERE idNoticia=?");
     $stmt->execute([$idNoticia]);
     $img = $stmt->fetchColumn();
@@ -66,43 +68,41 @@ if (isset($_GET['borrar'])) {
     $exito = "Noticia eliminada.";
 }
 
-// Cargar noticia para edición
+/* ============================================================
+   CARGAR NOTICIA PARA EDICIÓN
+   ============================================================ */
 $noticiaEditar = null;
 
 if (isset($_GET['editar'])) {
-    $idEditar = $_GET['editar'];
 
     $stmt = $pdo->prepare("SELECT * FROM noticias WHERE idNoticia=?");
-    $stmt->execute([$idEditar]);
+    $stmt->execute([$_GET['editar']]);
     $noticiaEditar = $stmt->fetch();
 }
 
-// Guardar cambios de edición
+/* ============================================================
+   GUARDAR CAMBIOS DE EDICIÓN
+   ============================================================ */
 if (isset($_POST['guardar_cambios'])) {
 
     $idNoticia = $_POST['idNoticia'];
     $titulo = trim($_POST['titulo']);
     $texto = trim($_POST['texto']);
 
-    // Obtener imagen actual
     $stmt = $pdo->prepare("SELECT imagen FROM noticias WHERE idNoticia=?");
     $stmt->execute([$idNoticia]);
     $imagenActual = $stmt->fetchColumn();
 
-    // Subida segura
     $imagenNueva = subirImagenSegura('imagen', $errores);
 
-    // Si no se subió nueva imagen, mantener la anterior
     if ($imagenNueva === '') {
         $imagenNueva = $imagenActual;
     } else {
-        // Borrar imagen anterior
         if ($imagenActual && file_exists("uploads/" . $imagenActual)) {
             unlink("uploads/" . $imagenActual);
         }
     }
 
-    // Actualizar noticia
     $stmt = $pdo->prepare("
         UPDATE noticias
         SET titulo=?, texto=?, imagen=?
@@ -114,7 +114,9 @@ if (isset($_POST['guardar_cambios'])) {
     $noticiaEditar = null;
 }
 
-// Obtener todas las noticias
+/* ============================================================
+   OBTENER TODAS LAS NOTICIAS
+   ============================================================ */
 $stmt = $pdo->query("
     SELECT n.*, ud.nombre, ud.apellidos
     FROM noticias n
@@ -124,112 +126,153 @@ $stmt = $pdo->query("
 $noticias = $stmt->fetchAll();
 ?>
 
+<?php 
+$pageTitle = "Administrar Noticias";
+$isAdmin = true;
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
-    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
-    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
-    <title>Administrar Noticias</title>
+    <?php include 'includes/head.php'; ?>
 </head>
+
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
-    <h1>Panel de administración de noticias</h1>
+<main>
 
-    <?php if (!empty($errores)): ?>
-        <div class="msg-error">
-            <?php foreach ($errores as $e): ?>
-                <p><?= htmlspecialchars($e) ?></p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+    <!-- TÍTULO PRINCIPAL -->
+    <section class="page-title">
+        <h1 class="admin-title">Panel de administración de noticias</h1>
+    </section>
 
-    <?php if ($exito): ?>
-        <div class="msg-exito">
-            <p><?= htmlspecialchars($exito) ?></p>
-        </div>
-    <?php endif; ?>
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="admin-section">
+        <div class="admin-container">        
 
-
-    <h2 class="seccion-titulo">Crear nueva noticia</h2>
-
-    <form method="POST" enctype="multipart/form-data" class="admin-form">
-
-        <input type="hidden" name="crear_noticia" value="1">
-
-        <label>Título:</label>
-        <input type="text" name="titulo" required>
-
-        <label>Imagen:</label>
-        <input type="file" name="imagen" accept="image/*">
-
-        <label>Texto:</label>
-        <textarea name="texto" required></textarea>
-
-        <button type="submit">Publicar noticia</button>
-    </form>
-
-    <?php if ($noticiaEditar): ?>
-
-    <h2 class="seccion-titulo">Editar noticia</h2>
-
-    <form method="POST" enctype="multipart/form-data" class="admin-form-edit">
-
-        <input type="hidden" name="guardar_cambios" value="1">
-        <input type="hidden" name="idNoticia" value="<?= $noticiaEditar['idNoticia'] ?>">
-
-        <label>Título:</label>
-        <input type="text" name="titulo" value="<?= htmlspecialchars($noticiaEditar['titulo']) ?>" required>
-
-        <label>Imagen actual:</label>
-        <?php if (!empty($noticiaEditar['imagen'])): ?>
-            <img src="uploads/<?= htmlspecialchars($noticiaEditar['imagen']) ?>" width="200">
-        <?php else: ?>
-            <p>No hay imagen asociada.</p>
-        <?php endif; ?>
-
-        <label>Subir nueva imagen (opcional):</label>
-        <input type="file" name="imagen" accept="image/*">
-
-        <label>Texto:</label>
-        <textarea name="texto" rows="5" required><?= htmlspecialchars($noticiaEditar['texto']) ?></textarea>
-
-        <button type="submit">Guardar cambios</button>
-    </form>
-
-    <?php endif; ?>
-
-    <h2 class="seccion-titulo">Noticias publicadas</h2>
-
-    <?php foreach ($noticias as $n): ?>
-        <div class="noticia-card">
-
-            <h3><?= htmlspecialchars($n['titulo']) ?></h3>
-            <p><strong>Fecha:</strong> <?= htmlspecialchars($n['fecha']) ?></p>
-            <p><strong>Autor:</strong> <?= htmlspecialchars($n['nombre'] . " " . $n['apellidos']) ?></p>
-
-            <?php if (!empty($n['imagen'])): ?>
-                <img src="uploads/<?= htmlspecialchars($n['imagen']) ?>">
+            <!-- Mensajes -->
+            <?php if (!empty($errores)): ?>
+                <div class="mensaje-error">
+                    <?php foreach ($errores as $e): ?>
+                        <?= htmlspecialchars($e) ?><br>
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
 
-            <p><?= nl2br(htmlspecialchars($n['texto'])) ?></p>
+            <?php if ($exito): ?>
+                <div class="mensaje-exito"><?= htmlspecialchars($exito) ?></div>
+            <?php endif; ?>
 
-            <a href="noticias-administracion.php?borrar=<?= $n['idNoticia'] ?>" onclick="return confirm('¿Eliminar esta noticia?')">Eliminar</a>
-            |
-            <a href="noticias-administracion.php?editar=<?= $n['idNoticia'] ?>">Editar</a>
 
+            <!-- CREAR NOTICIA -->
+            <h2>Crear nueva noticia</h2>
+
+            <form method="POST" enctype="multipart/form-data" class="admin-form">
+
+                <input type="hidden" name="crear_noticia" value="1">
+
+                <label>Título:</label>
+                <input type="text" name="titulo" required>
+
+                <label>Imagen:</label>
+                <input type="file" name="imagen" accept="image/*">
+
+                <label>Texto:</label>
+                <textarea name="texto" required></textarea>
+
+                <button type="submit" class="btn btn-primario">Publicar noticia</button>
+            </form>
+
+
+            <!-- EDITAR NOTICIA -->
+            <?php if ($noticiaEditar): ?>
+
+                <h2>Editar noticia</h2>
+
+                <form method="POST" enctype="multipart/form-data" class="admin-form-edit">
+
+                    <input type="hidden" name="guardar_cambios" value="1">
+                    <input type="hidden" name="idNoticia" value="<?= $noticiaEditar['idNoticia'] ?>">
+
+                    <label>Título:</label>
+                    <input type="text" name="titulo" value="<?= htmlspecialchars($noticiaEditar['titulo']) ?>" required>
+
+                    <label>Imagen actual:</label>
+                    <?php if (!empty($noticiaEditar['imagen'])): ?>
+                        <img src="uploads/<?= htmlspecialchars($noticiaEditar['imagen']) ?>" width="200">
+                    <?php else: ?>
+                        <p>No hay imagen asociada.</p>
+                    <?php endif; ?>
+
+                    <label>Subir nueva imagen (opcional):</label>
+                    <input type="file" name="imagen" accept="image/*">
+
+                    <label>Texto:</label>
+                    <textarea name="texto" rows="5" required><?= htmlspecialchars($noticiaEditar['texto']) ?></textarea>
+
+                    <button type="submit" class="btn btn-primario">Guardar cambios</button>
+                </form>
+
+            <?php endif; ?>
+
+        </div> <!-- cierre admin-container -->
+    </section>
+
+
+    <!-- LISTADO DE NOTICIAS -->
+    <section class="admin-section">
+
+        <h2 class="admin-subtitle">Noticias publicadas</h2>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+
+                <tr>
+                    <th>Título</th>
+                    <th>Fecha</th>
+                    <th>Autor</th>
+                    <th>Imagen</th>
+                    <th class="acciones">Acciones</th>
+                </tr>
+
+                <?php foreach ($noticias as $n): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($n['titulo']) ?></td>
+                        <td><?= htmlspecialchars($n['fecha']) ?></td>
+                        <td><?= htmlspecialchars($n['nombre'] . " " . $n['apellidos']) ?></td>
+
+                        <td>
+                            <?php if (!empty($n['imagen'])): ?>
+                                <img src="uploads/<?= htmlspecialchars($n['imagen']) ?>" width="80">
+                            <?php else: ?>
+                                —
+                            <?php endif; ?>
+                        </td>
+
+                        <td class="acciones">
+                            <a href="noticias-administracion.php?editar=<?= $n['idNoticia'] ?>" class="btn-accion btn-editar">
+                                Editar
+                            </a>
+
+                            <a href="noticias-administracion.php?borrar=<?= $n['idNoticia'] ?>"
+                               class="btn-accion btn-borrar"
+                               onclick="return confirm('¿Eliminar esta noticia?')">
+                                Borrar
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+
+            </table>
         </div>
-    <?php endforeach; ?>
 
-    <footer>
-        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
-    </footer>
+    </section>
+
+</main>
+
+<?php include 'includes/footer.php'; ?>
 
 </body>
 </html>

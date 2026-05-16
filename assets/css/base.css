@@ -1,0 +1,269 @@
+/* ========================== */
+/* ========= RESET ========== */
+/* ========================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {    
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    background: white;
+}
+
+
+/* =========================== */
+/* ======== VARIABLES ======== */
+/* =========================== */
+:root {
+    --azul: #0056b3;
+    --azul-oscuro: #003f82;
+    --gris-claro: #f7f7f7;
+    --gris-borde: #e0e0e0;
+    --sombra: 0 10px 25px rgba(0, 0, 0, 0.18);
+    --sombra1: 0 2px 6px rgba(0, 0, 0, 0.10);
+    --radio: 10px;
+    --trans: 0.3s ease;
+}
+
+/* ========================== */
+/* ======= TIPOGRAFÍA ======= */
+/* ========================== */
+h1 {
+    font-size: 30px;
+    margin: 20px auto 15px auto;
+    text-align: center;
+    color: var(--azul);
+}
+
+h2 {
+    font-size: 22px;
+    margin: 30px auto 15px auto;
+    max-width: 600px;
+    color: #333;
+    text-align: center;
+}
+
+/* ========================== */
+/* ======= UTILIDADES ======= */
+/* ========================== */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: var(--radio);    
+    padding: 20px;
+    max-width: 420px;
+    margin: 30px auto;
+    border: 2px solid #d0d7e1;
+    box-shadow: var(--sombra);
+}
+
+.cita-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cita-card p {
+    text-align: center;
+    margin: 5px 0;
+}
+
+/* Tarjeta de cita pasada */
+.cita-pasada {
+    background-color: #e9eef3; /* gris azulado suave */
+    border-left: 5px solid #7a8a9a; /* gris profesional */
+    opacity: 0.9;
+}
+
+/* Etiqueta “Cita pasada” */
+.badge-pasada {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #7a8a9a;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* Icono check */
+.check-icon {
+    background: #4caf50; /* verde suave */
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+
+.cita-card .btn-peligro {
+    align-self: center;
+}
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: var(--radio);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--trans);
+    color: white;
+}
+
+.btn-primario {
+    background: var(--azul);
+}
+
+.btn-primario:hover {
+    background: var(--azul-oscuro);
+}
+
+.btn-peligro {
+    background: #b30000;
+}
+.btn-peligro:hover {
+    background: #7a0000;
+}
+
+hr {
+    border: 0;
+    border-top: 2px solid var(--gris-borde);
+    width: 80%;
+    margin: 40px auto;
+}
+
+/* =================================== */
+/* ======= FORMULARIOS COMUNES ======= */
+/* =================================== */
+.page-wrapper {
+    min-height: 100vh;          
+    display: flex;
+    flex-direction: column;
+}
+
+.page-wrapper footer {
+    margin-top: auto;           
+}
+
+.form {
+    width: 100%;
+    max-width: 420px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    border: 2px solid #d0d7e1;
+    box-shadow: var(--sombra);
+}
+
+.form.form-cita-editar {
+    box-shadow: var(--sombra1);
+}
+
+.form h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--azul);
+    font-size: 26px;
+}
+
+.form label {
+    display: block;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form input,
+.form select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border-color 0.2s ease;
+}
+
+.form input:focus,
+.form select:focus {
+    border-color: var(--azul);
+    outline: none;
+    background: #fff;
+}
+
+.form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.form button:hover {
+    background: var(--azul-oscuro);
+}
+
+.form .texto-secundario {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.form .texto-secundario a {
+    color: var(--azul);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.form .texto-secundario a:hover {
+    text-decoration: underline;
+}
+
+.form-link {
+    text-align: center;
+    margin: 0 auto 30px auto;
+    font-size: 16px;
+    color: #333;
+}
+
+.form-link a {
+    color: var(--azul);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
+

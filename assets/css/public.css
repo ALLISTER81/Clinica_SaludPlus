@@ -1,0 +1,236 @@
+/* ========================= */
+/* ======== HERO =========== */
+/* ========================= */
+
+
+/* PÁRRAFO BAJO EL H1 (INDEX) */
+h1 + p {
+    font-size: 18px;
+    color: #444;
+    line-height: 1.7;
+    max-width: 900px;
+    margin: 0 auto 20px auto; 
+    text-align: center;
+}
+
+/* CONTENEDOR PADRE */
+.hero-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 50px;
+    padding: 0 40px;         
+    box-sizing: border-box;
+}
+
+/* SLIDER */
+.hero-slider {
+    width: 100%;
+    height: 650px;            
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;      
+}
+
+/* SLIDES */
+.hero-slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+
+/* ========================= */
+/* ====== SERVICIOS ======== */
+/* ========================= */
+.servicios {
+    padding-top: 0;
+    text-align: center;
+}
+
+.titulo-servicios {
+    font-size: 30px;
+    color: var(--azul);
+    margin-bottom: 30px;
+}
+
+.intro-servicios {
+    max-width: 900px;
+    margin: 0 auto 40px auto;
+    font-size: 20px;
+}
+
+.servicios-grid {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    margin: 10px auto 30px auto;
+}
+
+.lista-servicios {
+    list-style: none;
+    max-width: 350px;
+}
+
+.lista-servicios li {
+    background: white;
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    border: 2px solid #d0d7e1;  
+    border-radius: var(--radio);
+    box-shadow: var(--sombra); 
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lista-servicios li::before {
+    content: "✔";
+    color: #28a745;
+    font-size: 20px;
+}
+
+/* ========================= */
+/* ====== NOTICIAS ========= */
+/* ========================= */
+.titulo-noticias {
+    font-size: 30px;
+    color: var(--azul);
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.contenedor-noticias {
+    margin: 25px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.tarjeta-noticia {
+    width: 320px;
+    border-radius: var(--radio);
+    overflow: hidden;
+    background: white;
+}
+
+.tarjeta-noticia img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.contenido-noticia {
+    padding: 15px;
+}
+
+.tarjeta-blog-btn {
+    margin-top: 10px;
+}
+
+/* ========================= */
+/* ====== DETALLE ========= */
+/* ========================= */
+.detalle-contenedor {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.detalle-meta {
+    color: #666;
+    margin: 25px 0;
+}
+
+.detalle-img {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+}
+
+.detalle-texto {
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+}
+
+.btn-volver {
+    margin-bottom: 40px;
+}
+
+/*  ====== MENSAJES DE ÉXITO Y ERROR ====== */
+.mensaje-exito,
+.mensaje-error {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;          
+    padding: 15px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;        
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+    /* Animación de entrada + salida */
+    animation: fadeIn 0.4s ease-out, fadeOut 4s ease forwards;
+}
+
+/* Verde */
+.mensaje-exito {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Rojo */
+.mensaje-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Animación entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Animación salida */
+@keyframes fadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    70% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+
+/* ========================= */
+/* ======== FOOTER ========= */
+/* ========================= */
+footer {
+    margin-top: auto;
+    background: #eef2f7;
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 15px;
+    color: #555;
+}
+
+footer p {
+    margin: 0;
+    padding: 0;
+}

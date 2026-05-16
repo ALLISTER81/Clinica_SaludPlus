@@ -11,13 +11,13 @@ $idUser = $_SESSION['idUser'];
 $errores = [];
 $exito = '';
 
-// Mostrar mensajes por GET
+// Mensajes GET
 if (isset($_GET['creada'])) $exito = "Cita creada correctamente.";
 if (isset($_GET['borrada'])) $exito = "Cita eliminada.";
 if (isset($_GET['editada'])) $exito = "Cita actualizada correctamente.";
 if (isset($_GET['error'])) $errores[] = $_GET['error'];
 
-// Crear nueva cita
+// Crear cita
 if (isset($_POST['crear_cita'])) {
 
     $fecha = $_POST['fecha_cita'] ?? '';
@@ -93,6 +93,7 @@ if (isset($_POST['editar_cita'])) {
     exit;
 }
 
+// Obtener citas del usuario
 $stmt = $pdo->prepare("
     SELECT * FROM citas
     WHERE idUser=?
@@ -102,47 +103,51 @@ $stmt->execute([$idUser]);
 $citas = $stmt->fetchAll();
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
-    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
-    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">   
+    <?php include 'includes/head.php'; ?>
+
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/public.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+
     <title>Mis citas</title>
 </head>
+
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
-    <?php if (!empty($errores)): ?>
-        <div class="mensaje-error">
-            <?php foreach ($errores as $e): ?>
-                <?= $e ?><br>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+<main>
 
-    <?php if (!empty($exito)): ?>
-        <div class="mensaje-exito">
-            <?= $exito ?>
-        </div>
-    <?php endif; ?>
+    <section class="page-title">
+        <h2 class="admin-title">Crear nueva cita</h2>
+    </section>
 
+    <section class="admin-section container">
 
-    <h2>Crear nueva cita</h2>
+        <?php if (!empty($errores)): ?>
+            <div class="mensaje-error">
+                <?php foreach ($errores as $e): ?>
+                    <?= $e ?><br>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="POST" class="form-cita">
-        <input type="hidden" name="crear_cita" value="1">
+        <?php if (!empty($exito)): ?>
+            <div class="mensaje-exito">
+                <?= $exito ?>
+            </div>
+        <?php endif; ?>
 
-        <label>Fecha:</label>
-        <input type="date" name="fecha_cita" required><br>
+        <form method="POST" class="form">
+            <input type="hidden" name="crear_cita" value="1">
 
-        <label>Especialidad (motivo):</label>
+            <label>Fecha:</label>
+            <input type="date" name="fecha_cita" required>
+
+            <label>Especialidad (motivo):</label>
             <select name="motivo_cita" class="select-cita" required>
                 <option value="">Seleccione una especialidad</option>
                 <option value="Medicina General">Medicina General</option>
@@ -153,69 +158,81 @@ $citas = $stmt->fetchAll();
                 <option value="Pediatría">Pediatría</option>
                 <option value="Fisioterápia">Fisioterápia</option>
                 <option value="Oftalmología">Oftalmología</option>
-                <option value="Podología">Podología</option>              
-                <option value="Odontología">Odontología</option>            
+                <option value="Podología">Podología</option>
+                <option value="Odontología">Odontología</option>
             </select>
 
-        <button type="submit">Crear cita</button>
-    </form>
+            <button type="submit" class="btn btn-primario">Crear cita</button>
+        </form>
 
-    <hr>
+        <hr>
 
-    <h2>Mis citas</h2>
+        <section class="page-title">
+            <h2 class="admin-title">Mis citas</h2>
+        </section>
 
-    <?php foreach ($citas as $c): ?>
-    <div class="cita-card">
+        <?php foreach ($citas as $c): ?>
 
-        <p><strong>Fecha:</strong> <?= date("d/m/Y", strtotime($c['fecha_cita'])) ?></p>
-        <p><strong>Motivo:</strong> <?= $c['motivo_cita'] ?></p>
+            <?php $esPasada = ($c['fecha_cita'] < date('Y-m-d')); ?>
 
-        <?php if ($c['fecha_cita'] >= date('Y-m-d')): ?>
+            <div class="card cita-card <?= $esPasada ? 'cita-pasada' : '' ?>">
 
-            <!-- Editar -->
-<form method="POST" class="form-cita-editar">
-    <input type="hidden" name="editar_cita" value="1">
-    <input type="hidden" name="idCita" value="<?= $c['idCita'] ?>">
+                <?php if ($esPasada): ?>
+                    <div class="badge-pasada">
+                        <span class="check-icon">✔</span> Cita pasada
+                    </div>
+                <?php endif; ?>
 
-    <label>Nueva fecha:</label>
-    <input type="date" name="fecha_cita" value="<?= $c['fecha_cita'] ?>" required>
+                <p><strong>Fecha:</strong> <?= date("d/m/Y", strtotime($c['fecha_cita'])) ?></p>
+                <p><strong>Motivo:</strong> <?= $c['motivo_cita'] ?></p>
 
-    <label>Especialidad (motivo):</label>
-    <select name="motivo_cita" class="select-cita" required>
-        <option value="">Seleccione una especialidad</option>
+                <?php if (!$esPasada): ?>
 
-        <option value="Medicina General" <?= $c['motivo_cita'] == 'Medicina General' ? 'selected' : '' ?>>Medicina General</option>
-        <option value="Cardiología" <?= $c['motivo_cita'] == 'Cardiología' ? 'selected' : '' ?>>Cardiología</option>
-        <option value="Radiología Digital" <?= $c['motivo_cita'] == 'Radiología Digital' ? 'selected' : '' ?>>Radiología Digital</option>
-        <option value="Resonancia Magnética 3D" <?= $c['motivo_cita'] == 'Resonancia Magnética 3D' ? 'selected' : '' ?>>Resonancia Magnética 3D</option>
-        <option value="Análisis clínicos" <?= $c['motivo_cita'] == 'Análisis clínicos' ? 'selected' : '' ?>>Análisis clínicos</option>
-        <option value="Pediatría" <?= $c['motivo_cita'] == 'Pediatría' ? 'selected' : '' ?>>Pediatría</option>
-        <option value="Fisioterápia" <?= $c['motivo_cita'] == 'Fisioterápia' ? 'selected' : '' ?>>Fisioterápia</option>
-        <option value="Oftalmología" <?= $c['motivo_cita'] == 'Oftalmología' ? 'selected' : '' ?>>Oftalmología</option>
-        <option value="Podología" <?= $c['motivo_cita'] == 'Podología' ? 'selected' : '' ?>>Podología</option>
-        <option value="Odontología" <?= $c['motivo_cita'] == 'Odontología' ? 'selected' : '' ?>>Odontología</option>
-    </select>
+                    <form method="POST" class="form form-cita-editar">
+                        <input type="hidden" name="editar_cita" value="1">
+                        <input type="hidden" name="idCita" value="<?= $c['idCita'] ?>">
 
-    <button type="submit">Guardar cambios</button>
-</form>
+                        <label>Nueva fecha:</label>
+                        <input type="date" name="fecha_cita" value="<?= $c['fecha_cita'] ?>" required>
 
+                        <label>Especialidad (motivo):</label>
+                        <select name="motivo_cita" class="select-cita" required>
+                            <option value="">Seleccione una especialidad</option>
 
-            <!-- Botón borrar -->
-            <a class="btn-delete-cita" 
-               href="citaciones.php?borrar=<?= $c['idCita'] ?>" 
-               onclick="return confirm('¿Seguro que quieres borrar esta cita?')">
-               Borrar
-            </a>
+                            <option value="Medicina General" <?= $c['motivo_cita'] == 'Medicina General' ? 'selected' : '' ?>>Medicina General</option>
+                            <option value="Cardiología" <?= $c['motivo_cita'] == 'Cardiología' ? 'selected' : '' ?>>Cardiología</option>
+                            <option value="Radiología Digital" <?= $c['motivo_cita'] == 'Radiología Digital' ? 'selected' : '' ?>>Radiología Digital</option>
+                            <option value="Resonancia Magnética 3D" <?= $c['motivo_cita'] == 'Resonancia Magnética 3D' ? 'selected' : '' ?>>Resonancia Magnética 3D</option>
+                            <option value="Análisis clínicos" <?= $c['motivo_cita'] == 'Análisis clínicos' ? 'selected' : '' ?>>Análisis clínicos</option>
+                            <option value="Pediatría" <?= $c['motivo_cita'] == 'Pediatría' ? 'selected' : '' ?>>Pediatría</option>
+                            <option value="Fisioterápia" <?= $c['motivo_cita'] == 'Fisioterápia' ? 'selected' : '' ?>>Fisioterápia</option>
+                            <option value="Oftalmología" <?= $c['motivo_cita'] == 'Oftalmología' ? 'selected' : '' ?>>Oftalmología</option>
+                            <option value="Podología" <?= $c['motivo_cita'] == 'Podología' ? 'selected' : '' ?>>Podología</option>
+                            <option value="Odontología" <?= $c['motivo_cita'] == 'Odontología' ? 'selected' : '' ?>>Odontología</option>
+                        </select>
 
-        <?php endif; ?>
+                        <button type="submit" class="btn btn-primario">Guardar cambios</button>
+                    </form>
 
-    </div>
-    <?php endforeach; ?>
-    <footer>
-        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
-    </footer>
+                    <a href="citaciones.php?borrar=<?= $c['idCita'] ?>"
+                    class="btn btn-peligro"
+                    onclick="return confirm('¿Seguro que quieres borrar esta cita?')">
+                        Borrar
+                    </a>
+
+                <?php endif; ?>
+
+            </div>
+
+        <?php endforeach; ?>
+
+    </section>
+
+</main>
+
+<?php include 'includes/footer.php'; ?>
+
+<script src="scripts/mensajes.js"></script>
 
 </body>
 </html>
-
-

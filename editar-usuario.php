@@ -1,8 +1,15 @@
 <?php
 session_start();
-require 'conexion.php';
+require_once 'includes/db.php';
+require_once 'includes/auth.php';
 
-// Verificar si llega el idUser
+// Solo admins
+if (!isLogged() || !isAdmin()) {
+    header("Location: index.php");
+    exit;
+}
+
+// Verificar idUser
 if (!isset($_GET['idUser'])) {
     die("ID de usuario no especificado.");
 }
@@ -23,18 +30,23 @@ if (!$usuario) {
     die("Usuario no encontrado.");
 }
 
-// Si se envía el formulario
+// Guardar cambios
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $nombre = $_POST['nombre'];
-    $apellidos = $_POST['apellidos'];
-    $email = $_POST['email'];
-    $telefono = $_POST['telefono'];
-    $fecha_nacimiento = $_POST['fecha_nacimiento'];
-    $direccion = $_POST['direccion'];
-    $sexo = $_POST['sexo'];
-    $usuario_login = $_POST['usuario'];
-    $rol = $_POST['rol'];
+    $nombre           = trim($_POST['nombre']);
+    $apellidos        = trim($_POST['apellidos']);
+    $email            = trim($_POST['email']);
+    $telefono         = trim($_POST['telefono']);
+    $fecha_nacimiento = trim($_POST['fecha_nacimiento']);
+    $direccion        = trim($_POST['direccion']);
+    $sexo             = trim($_POST['sexo']);
+    $usuario_login    = trim($_POST['usuario']);
+    $rol              = trim($_POST['rol']);
+
+    // Validación email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("El email no es válido.");
+    }
 
     // Actualizar users_data
     $stmt = $pdo->prepare("
@@ -42,7 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SET nombre=?, apellidos=?, email=?, telefono=?, fecha_nacimiento=?, direccion=?, sexo=?
         WHERE idUser=?
     ");
-    $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo, $idUser]);
+    $stmt->execute([
+        $nombre, $apellidos, $email, $telefono,
+        $fecha_nacimiento, $direccion, $sexo, $idUser
+    ]);
 
     // Actualizar users_login
     $stmt = $pdo->prepare("
@@ -52,52 +67,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
     $stmt->execute([$usuario_login, $rol, $idUser]);
 
-    header("Location: usuarios-administracion.php?edit=ok");
+    // Redirección con mensaje
+    header("Location: usuarios-administracion.php?editado=1");
     exit;
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/Trabajo_Final_Php/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Trabajo_Final_Php/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Trabajo_Final_Php/favicon-16x16.png">
-    <link rel="manifest" href="/Trabajo_Final_Php/site.webmanifest">
-    <link rel="icon" href="/Trabajo_Final_Php/favicon.ico">
+    <?php include 'includes/head.php'; ?>
+
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/public.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="assets/css/navbar.css">
+
     <title>Editar Usuario</title>    
 </head>
-
 <body>
 
-    <?php include 'includes/navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
+<main>
+
+    <!-- TÍTULO PRINCIPAL -->
+    <section class="page-title">
+        <h1 class="admin-title">Editar Usuario</h1>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL -->
     <section class="admin-section">
-        <div class="admin-container">
-
-            <h2 class="admin-title">Editar Usuario</h2>
+        <div class="admin-container">        
 
             <form method="POST" class="admin-form">
 
                 <label>Nombre:</label>
-                <input type="text" name="nombre" value="<?= $usuario['nombre'] ?>" required>
+                <input type="text" name="nombre" 
+                       value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
 
                 <label>Apellidos:</label>
-                <input type="text" name="apellidos" value="<?= $usuario['apellidos'] ?>" required>
+                <input type="text" name="apellidos" 
+                       value="<?= htmlspecialchars($usuario['apellidos']) ?>" required>
 
                 <label>Email:</label>
-                <input type="email" name="email" value="<?= $usuario['email'] ?>" required>
+                <input type="email" name="email" 
+                       value="<?= htmlspecialchars($usuario['email']) ?>" required>
 
                 <label>Teléfono:</label>
-                <input type="text" name="telefono" value="<?= $usuario['telefono'] ?>">
+                <input type="text" name="telefono" 
+                       value="<?= htmlspecialchars($usuario['telefono']) ?>">
 
                 <label>Fecha nacimiento:</label>
-                <input type="date" name="fecha_nacimiento" value="<?= $usuario['fecha_nacimiento'] ?>">
+                <input type="date" name="fecha_nacimiento" 
+                       value="<?= htmlspecialchars($usuario['fecha_nacimiento']) ?>">
 
                 <label>Dirección:</label>
-                <input type="text" name="direccion" value="<?= $usuario['direccion'] ?>">
+                <input type="text" name="direccion" 
+                       value="<?= htmlspecialchars($usuario['direccion']) ?>">
 
                 <label>Sexo:</label>
                 <select name="sexo" required>
@@ -107,25 +135,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
 
                 <label>Usuario (login):</label>
-                <input type="text" name="usuario" value="<?= $usuario['usuario'] ?>" required>
+                <input type="text" name="usuario" 
+                       value="<?= htmlspecialchars($usuario['usuario']) ?>" required>
 
                 <label>Rol:</label>
-                    <select name="rol">
-                        <option value="usuario" <?= $usuario['rol']=='usuario'?'selected':'' ?>>Usuario</option>
-                        <option value="admin" <?= $usuario['rol']=='admin'?'selected':'' ?>>Administrador</option>
-                    </select>
+                <select name="rol">
+                    <option value="usuario" <?= $usuario['rol']=='usuario'?'selected':'' ?>>Usuario</option>
+                    <option value="admin" <?= $usuario['rol']=='admin'?'selected':'' ?>>Administrador</option>
+                </select>
 
-                <button type="submit" class="btn-guardar">Guardar cambios</button>
+                <button type="submit" class="btn btn-primario">Guardar cambios</button>
             </form>
 
-            <a href="usuarios-administracion.php" class="btn-volver">← Volver</a>
+            <a href="usuarios-administracion.php" class="btn btn-primario" style="margin-top:20px;">
+                ← Volver
+            </a>
 
-         </div>
+        </div>
     </section>
 
-    <footer>
-        <p>© 2026 Clínica SaludPlus — Todos los derechos reservados</p>
-    </footer>
+</main>
+
+<?php include 'includes/footer.php'; ?>
 
 </body>
 </html>
+
