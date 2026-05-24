@@ -15,39 +15,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $direccion = trim($_POST['direccion'] ?? '');
     $sexo = trim($_POST['sexo'] ?? '');
     $rol = trim($_POST['rol'] ?? '');
+    $usuario = trim($_POST['usuario'] ?? '');
     $password = trim($_POST['password'] ?? '');
     $password2 = trim($_POST['password2'] ?? '');
 
-    // Validación de email
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Validación email
+    if (!preg_match('/^[^@]+@[^@]+\.[^@]+$/', $email)) {
         $errores[] = "El email no es válido.";
     }
 
-    // Validación de contraseñas
+    // Validación usuario
+    if (!preg_match('/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/', $usuario)) {
+        $errores[] = "El usuario debe contener al menos una mayúscula y un número.";
+    }
+
+    // Validación contraseñas
     if ($password !== $password2) {
         $errores[] = "Las contraseñas no coinciden.";
     }
 
     if (empty($errores)) {
 
-        if (registrar(
-            $nombre,
-            $apellidos,
-            $email,
-            $telefono,
-            $fecha_nacimiento,
-            $direccion,
-            $sexo,
-            $rol,
-            $password
-        )) {
+        try {
 
-            // REDIRECCIÓN INMEDIATA Y FUNCIONAL
-            header("Location: login.php");
-            exit;
+            if (registrar(
+                $nombre,
+                $apellidos,
+                $email,
+                $telefono,
+                $fecha_nacimiento,
+                $direccion,
+                $sexo,
+                $rol,
+                $usuario,
+                $password
+            )) {
 
-        } else {
-            $errores[] = "El email ya está registrado.";
+                $_SESSION['mensaje_exito'] = "Usuario registrado correctamente. Bienvenido.";
+
+                header("Location: login.php");
+                exit;
+
+            } else {
+                $errores[] = "El email o el usuario ya están registrados.";
+            }
+
+        } catch (PDOException $e) {
+            $errores[] = "Error en la base de datos: " . $e->getMessage();
         }
     }
 }
@@ -71,30 +85,26 @@ $isAdmin = false;
 <main>
 
     <!-- TÍTULO PRINCIPAL -->
-    <section class="page-title">
-        <h1 class="admin-title">Registro de paciente</h1>
-    </section>
+    <h1 class="public-title">Registro de paciente</h1>
+    
+    <!-- MENSAJES -->
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <?= htmlspecialchars($e) ?><br>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-    <!-- CONTENIDO -->
-    <section class="admin-section">
-        <div class="page-wrapper">
+    <?php if (!empty($exito)): ?>
+        <div class="mensaje-exito">
+            <?= htmlspecialchars($exito) ?>
+        </div>
+    <?php endif; ?>
 
-            <!-- MENSAJES -->
-            <?php if (!empty($errores)): ?>
-                <div class="mensaje-error">
-                    <?php foreach ($errores as $e): ?>
-                        <?= htmlspecialchars($e) ?><br>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+    <section class="public-section">
+        <div class="public-container">
 
-            <?php if (!empty($exito)): ?>
-                <div class="mensaje-exito">
-                    <?= htmlspecialchars($exito) ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- FORMULARIO -->
             <form method="POST" class="form">
 
                 <label>Nombre:</label>
@@ -130,6 +140,11 @@ $isAdmin = false;
                     <option value="admin">Administrador</option>
                 </select>
 
+                <label>Usuario (login):</label>
+                <input type="text" name="usuario" required
+                       pattern="^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$"
+                       title="Debe contener al menos una mayúscula y un número.">
+
                 <label>Contraseña:</label>
                 <input type="password" name="password" required>
 
@@ -137,12 +152,14 @@ $isAdmin = false;
                 <input type="password" name="password2" required>
 
                 <button type="submit" class="btn btn-primario">Registrarse</button>
+
+                <p class="texto-secundario">
+                    ¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a>
+                </p>
+
             </form>
 
-            <p class="form-link">
-                ¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a>
-            </p>
-
+            
         </div>
     </section>
 
@@ -154,5 +171,3 @@ $isAdmin = false;
 
 </body>
 </html>
-
-

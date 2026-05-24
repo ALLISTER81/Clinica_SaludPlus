@@ -50,11 +50,12 @@ h1 {
 
 h2 {
     font-size: 22px;
-    margin: 30px auto 15px auto;
-    max-width: 600px;
+    margin: 30px 0 15px 0;
+    max-width: none;
     color: #333;
-    text-align: center;
+    text-align: inherit;
 }
+
 
 /* ========================== */
 /* ======= UTILIDADES ======= */
@@ -72,7 +73,7 @@ h2 {
     max-width: 420px;
     margin: 30px auto;
     border: 2px solid #d0d7e1;
-    box-shadow: var(--sombra);
+    box-shadow: var(--sombra1);
 }
 
 .cita-card {
@@ -133,6 +134,13 @@ h2 {
     color: white;
 }
 
+.btn-volver {
+    display: block;
+    width: fit-content;
+    margin: 30px auto 0 auto;
+    text-align: center;
+}
+
 .btn-primario {
     background: var(--azul);
 }
@@ -158,25 +166,25 @@ hr {
 /* =================================== */
 /* ======= FORMULARIOS COMUNES ======= */
 /* =================================== */
-.page-wrapper {
-    min-height: 100vh;          
-    display: flex;
-    flex-direction: column;
-}
-
-.page-wrapper footer {
-    margin-top: auto;           
-}
-
 .form {
     width: 100%;
     max-width: 420px;
-    margin: 30px auto;
+    margin: 0 auto;
     background: #ffffff;
     padding: 30px;
     border-radius: 12px;
     border: 2px solid #d0d7e1;
-    box-shadow: var(--sombra);
+    box-shadow: var(--sombra1);
+}
+
+.form-inline {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+td .form-inline {
+    display: inline-block;
 }
 
 .form.form-cita-editar {
@@ -235,7 +243,7 @@ hr {
 
 .form .texto-secundario {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 30px;
     font-size: 14px;
 }
 
@@ -249,21 +257,6 @@ hr {
     text-decoration: underline;
 }
 
-.form-link {
-    text-align: center;
-    margin: 0 auto 30px auto;
-    font-size: 16px;
-    color: #333;
-}
 
-.form-link a {
-    color: var(--azul);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.form-link a:hover {
-    text-decoration: underline;
-}
 
 

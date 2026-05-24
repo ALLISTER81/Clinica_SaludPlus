@@ -76,13 +76,13 @@ $current = basename($_SERVER['PHP_SELF']);
                     <!-- USUARIO NORMAL -->
                     <li>
                         <a href="citaciones.php" class="<?= $current === 'citaciones.php' ? 'active' : '' ?>">
-                            Mis citas
+                            Citaciones
                         </a>
                     </li>
 
                     <li>
                         <a href="perfil.php" class="<?= $current === 'perfil.php' ? 'active' : '' ?>">
-                            Mi perfil
+                            Perfil
                         </a>
                     </li>
 

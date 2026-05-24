@@ -13,7 +13,7 @@ $exito = '';
 $errores = [];
 
 /* ============================================================
-   1. CARGAR DATOS DEL USUARIO
+   1. CARGAR DATOS DEL USUARIO (users_data)
    ============================================================ */
 $stmt = $pdo->prepare("SELECT * FROM users_data WHERE idUser=?");
 $stmt->execute([$idUser]);
@@ -21,11 +21,20 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $nombre = $user['nombre'];
 $apellidos = $user['apellidos'];
-$email = $user['email']; // NO editable
+$email = $user['email']; // Editable
 $telefono = $user['telefono'];
 $fecha_nacimiento = $user['fecha_nacimiento'];
 $direccion = $user['direccion'];
 $sexo = $user['sexo'];
+
+/* ============================================================
+   1b. CARGAR USUARIO (users_login)
+   ============================================================ */
+$stmt = $pdo->prepare("SELECT usuario FROM users_login WHERE idUser=?");
+$stmt->execute([$idUser]);
+$userLogin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$usuario = $userLogin['usuario']; // NO editable
 
 /* ============================================================
    2. ACTUALIZAR DATOS PERSONALES
@@ -34,13 +43,14 @@ if (isset($_POST['guardar_datos'])) {
 
     $stmt = $pdo->prepare("
         UPDATE users_data
-        SET nombre=?, apellidos=?, telefono=?, fecha_nacimiento=?, direccion=?, sexo=?
+        SET nombre=?, apellidos=?, email=?, telefono=?, fecha_nacimiento=?, direccion=?, sexo=?
         WHERE idUser=?
     ");
 
     $stmt->execute([
         $_POST['nombre'],
         $_POST['apellidos'],
+        $_POST['email'],
         $_POST['telefono'],
         $_POST['fecha_nacimiento'],
         $_POST['direccion'],
@@ -53,35 +63,45 @@ if (isset($_POST['guardar_datos'])) {
     // Recargar datos actualizados
     $nombre = $_POST['nombre'];
     $apellidos = $_POST['apellidos'];
+    $email = $_POST['email'];
     $telefono = $_POST['telefono'];
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
     $direccion = $_POST['direccion'];
     $sexo = $_POST['sexo'];
 }
 
+
 /* ============================================================
-   3. CAMBIAR CONTRASEÑA
+   3. CAMBIAR CONTRASEÑA (solo bcrypt)
    ============================================================ */
 if (isset($_POST['cambiar_password'])) {
 
-    // Obtener contraseña actual
+    // Obtener hash actual almacenado
     $stmt = $pdo->prepare("SELECT password FROM users_login WHERE idUser=?");
     $stmt->execute([$idUser]);
     $userLogin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Validar contraseña actual
-    if (!password_verify($_POST['password_actual'], $userLogin['password'])) {
+    $storedHash = $userLogin['password'];
+    $passwordActual = $_POST['password_actual'];
+    $passwordNueva  = $_POST['password_nueva'];
+    $passwordNueva2 = $_POST['password_nueva2'];
+
+    /* ------------------------------------------------------------
+       3.1 Verificar contraseña actual (bcrypt)
+       ------------------------------------------------------------ */
+    if (!password_verify($passwordActual, $storedHash)) {
         $errores[] = "La contraseña actual no es correcta.";
-    } elseif ($_POST['password_nueva'] !== $_POST['password_nueva2']) {
+    } elseif ($passwordNueva !== $passwordNueva2) {
         $errores[] = "Las nuevas contraseñas no coinciden.";
     } else {
 
-        // Actualizar contraseña
+        /* ------------------------------------------------------------
+           3.2 Guardar nueva contraseña en bcrypt
+           ------------------------------------------------------------ */
+        $nuevoHash = password_hash($passwordNueva, PASSWORD_DEFAULT);
+
         $stmt = $pdo->prepare("UPDATE users_login SET password=? WHERE idUser=?");
-        $stmt->execute([
-            password_hash($_POST['password_nueva'], PASSWORD_DEFAULT),
-            $idUser
-        ]);
+        $stmt->execute([$nuevoHash, $idUser]);
 
         $exito = "Contraseña actualizada correctamente.";
     }
@@ -90,9 +110,10 @@ if (isset($_POST['cambiar_password'])) {
 
 
 <?php 
-$pageTitle = "Mi perfil";
+$pageTitle = "Perfil";
 $isAdmin = false;
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -105,14 +126,10 @@ $isAdmin = false;
 
 <main>
 
-    <!-- TÍTULO PRINCIPAL -->
-    <section class="page-title">
-        <h1 class="admin-title">Mi Perfil</h1>
-    </section>
+    <h1 class="public-title">Perfil</h1>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <section class="admin-section">
-        <div class="container">
+    <section class="public-section">
+        <div class="public-container">
 
             <?php if (!empty($exito)): ?>
                 <div class="mensaje-exito"><?= $exito ?></div>
@@ -126,11 +143,7 @@ $isAdmin = false;
                 </div>
             <?php endif; ?>
 
-
-            <!-- ============================================================
-                 FORMULARIO 1: DATOS PERSONALES
-                 ============================================================ -->
-            <h2>Datos personales</h2>
+            <h2 class="public-subtitle">Datos personales</h2>
 
             <form method="POST" class="form">
 
@@ -140,8 +153,11 @@ $isAdmin = false;
                 <label>Apellidos:</label>
                 <input type="text" name="apellidos" value="<?= htmlspecialchars($apellidos) ?>" required>
 
-                <label>Email (no editable):</label>
-                <input type="email" value="<?= htmlspecialchars($email) ?>" disabled>
+                <label>Usuario (no editable):</label>
+                <input type="text" value="<?= htmlspecialchars($usuario) ?>" disabled>
+
+                <label>Email:</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
 
                 <label>Teléfono:</label>
                 <input type="text" name="telefono" value="<?= htmlspecialchars($telefono) ?>" required>
@@ -165,11 +181,7 @@ $isAdmin = false;
 
             </form>
 
-
-            <!-- ============================================================
-                 FORMULARIO 2: CAMBIAR CONTRASEÑA
-                 ============================================================ -->
-            <h2>Cambiar contraseña</h2>
+            <h2 class="public-subtitle">Cambiar contraseña</h2>
 
             <form method="POST" class="form">
 
@@ -199,4 +211,3 @@ $isAdmin = false;
 
 </body>
 </html>
-

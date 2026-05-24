@@ -118,10 +118,10 @@ if (isset($_POST['guardar_cambios'])) {
    OBTENER TODAS LAS NOTICIAS
    ============================================================ */
 $stmt = $pdo->query("
-    SELECT n.*, ud.nombre, ud.apellidos
+    SELECT n.*, u.nombre, u.apellidos
     FROM noticias n
-    JOIN users_data ud ON n.idUser = ud.idUser
-    ORDER BY fecha DESC
+    LEFT JOIN users_data u ON n.idUser = u.idUser
+    ORDER BY fecha DESC, idNoticia DESC
 ");
 $noticias = $stmt->fetchAll();
 ?>
@@ -148,48 +148,49 @@ $isAdmin = true;
         <h1 class="admin-title">Panel de administración de noticias</h1>
     </section>
 
+    <!-- MENSAJES -->
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <?= htmlspecialchars($e) ?><br>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($exito): ?>
+        <div class="mensaje-exito"><?= htmlspecialchars($exito) ?></div>
+    <?php endif; ?>
+
     <!-- CONTENIDO PRINCIPAL -->
     <section class="admin-section">
-        <div class="admin-container">        
+        <div class="admin-container">      
 
-            <!-- Mensajes -->
-            <?php if (!empty($errores)): ?>
-                <div class="mensaje-error">
-                    <?php foreach ($errores as $e): ?>
-                        <?= htmlspecialchars($e) ?><br>
-                    <?php endforeach; ?>
-                </div>
+            <!-- CREAR NOTICIA (solo si NO se está editando) -->
+            <?php if (!$noticiaEditar): ?>
+                <h2 class="admin-subtitle">Crear nueva noticia</h2>
+
+                <form method="POST" enctype="multipart/form-data" class="admin-form">
+
+                    <input type="hidden" name="crear_noticia" value="1">
+
+                    <label>Título:</label>
+                    <input type="text" name="titulo" required>
+
+                    <label>Imagen:</label>
+                    <input type="file" name="imagen" accept="image/*">
+
+                    <label>Texto:</label>
+                    <textarea name="texto" required></textarea>
+
+                    <button type="submit" class="btn btn-primario">Publicar noticia</button>
+                </form>
             <?php endif; ?>
-
-            <?php if ($exito): ?>
-                <div class="mensaje-exito"><?= htmlspecialchars($exito) ?></div>
-            <?php endif; ?>
-
-
-            <!-- CREAR NOTICIA -->
-            <h2>Crear nueva noticia</h2>
-
-            <form method="POST" enctype="multipart/form-data" class="admin-form">
-
-                <input type="hidden" name="crear_noticia" value="1">
-
-                <label>Título:</label>
-                <input type="text" name="titulo" required>
-
-                <label>Imagen:</label>
-                <input type="file" name="imagen" accept="image/*">
-
-                <label>Texto:</label>
-                <textarea name="texto" required></textarea>
-
-                <button type="submit" class="btn btn-primario">Publicar noticia</button>
-            </form>
 
 
             <!-- EDITAR NOTICIA -->
             <?php if ($noticiaEditar): ?>
 
-                <h2>Editar noticia</h2>
+                <h2 class="admin-subtitle">Editar noticia</h2>
 
                 <form method="POST" enctype="multipart/form-data" class="admin-form-edit">
 
@@ -217,7 +218,7 @@ $isAdmin = true;
 
             <?php endif; ?>
 
-        </div> <!-- cierre admin-container -->
+        </div>
     </section>
 
 
@@ -226,53 +227,75 @@ $isAdmin = true;
 
         <h2 class="admin-subtitle">Noticias publicadas</h2>
 
-        <div class="admin-table-wrapper">
-            <table class="admin-table">
+        <?php if (empty($noticias)): ?>
 
-                <tr>
-                    <th>Título</th>
-                    <th>Fecha</th>
-                    <th>Autor</th>
-                    <th>Imagen</th>
-                    <th class="acciones">Acciones</th>
-                </tr>
+            <div class="citas-placeholder">
+                <p>No hay noticias publicadas todavía.</p>
+            </div>
 
-                <?php foreach ($noticias as $n): ?>
+        <?php else: ?>
+
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+
                     <tr>
-                        <td><?= htmlspecialchars($n['titulo']) ?></td>
-                        <td><?= htmlspecialchars($n['fecha']) ?></td>
-                        <td><?= htmlspecialchars($n['nombre'] . " " . $n['apellidos']) ?></td>
-
-                        <td>
-                            <?php if (!empty($n['imagen'])): ?>
-                                <img src="uploads/<?= htmlspecialchars($n['imagen']) ?>" width="80">
-                            <?php else: ?>
-                                —
-                            <?php endif; ?>
-                        </td>
-
-                        <td class="acciones">
-                            <a href="noticias-administracion.php?editar=<?= $n['idNoticia'] ?>" class="btn-accion btn-editar">
-                                Editar
-                            </a>
-
-                            <a href="noticias-administracion.php?borrar=<?= $n['idNoticia'] ?>"
-                               class="btn-accion btn-borrar"
-                               onclick="return confirm('¿Eliminar esta noticia?')">
-                                Borrar
-                            </a>
-                        </td>
+                        <th>Título</th>
+                        <th>Fecha</th>
+                        <th>Autor</th>
+                        <th>Imagen</th>
+                        <th class="acciones">Acciones</th>
                     </tr>
-                <?php endforeach; ?>
 
-            </table>
-        </div>
+                    <?php foreach ($noticias as $n): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($n['titulo']) ?></td>
+                            <td><?= htmlspecialchars($n['fecha']) ?></td>
+                            <td><?= htmlspecialchars($n['nombre'] . " " . $n['apellidos']) ?></td>
+
+                            <td>
+                                <?php if (!empty($n['imagen'])): ?>
+                                    <img src="uploads/<?= htmlspecialchars($n['imagen']) ?>" width="80">
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+
+                            <td class="acciones">
+                                <a href="noticias-administracion.php?editar=<?= $n['idNoticia'] ?>" class="btn-accion btn-editar">
+                                    Editar
+                                </a>
+
+                                <a href="noticias-administracion.php?borrar=<?= $n['idNoticia'] ?>"
+                                   class="btn-accion btn-borrar"
+                                   onclick="return confirm('¿Eliminar esta noticia?')">
+                                    Borrar
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+
+                </table>
+            </div>
+
+        <?php endif; ?>
 
     </section>
 
 </main>
 
 <?php include 'includes/footer.php'; ?>
+
+
+<?php if ($noticiaEditar): ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector(".admin-form-edit");
+        if (form) {
+            form.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    });
+</script>
+<?php endif; ?>
 
 </body>
 </html>

@@ -6,7 +6,7 @@ require_once 'includes/auth.php';
 $stmt = $pdo->query("
     SELECT idNoticia, titulo, imagen, texto, fecha
     FROM noticias
-    ORDER BY fecha DESC
+    ORDER BY fecha DESC, idNoticia DESC
     LIMIT 3
 ");
 $ultimasNoticias = $stmt->fetchAll();
@@ -102,11 +102,13 @@ $isAdmin = false;
 
         <?php if (count($ultimasNoticias) === 0): ?>
 
-            <p>No hay noticias publicadas todavía.</p>
+            <div class="noticias-placeholder">
+                <p>Aún no hay noticias publicadas.</p>
+            </div>
 
         <?php else: ?>
 
-            <div class="contenedor-noticias">
+            <div class="contenedor-noticias index-noticias">
 
                 <?php foreach ($ultimasNoticias as $n): ?>
                     <div class="card tarjeta-noticia">
@@ -119,7 +121,7 @@ $isAdmin = false;
                             <h3><?= $n['titulo'] ?></h3>
                             <p class="fecha"><?= date("d/m/Y", strtotime($n['fecha'])) ?></p>
                             <p><?= substr($n['texto'], 0, 150) ?>...</p>
-                            <a href="noticia-detalles.php?id=<?= $n['idNoticia'] ?>" class="btn btn-primario tarjeta-blog-btn">Leer más</a>
+                            <a href="noticias.php?id=<?= $n['idNoticia'] ?>" class="btn btn-primario tarjeta-blog-btn">Leer más</a>
                         </div>
 
                     </div>

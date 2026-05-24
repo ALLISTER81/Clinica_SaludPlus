@@ -2,13 +2,17 @@
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 
-// Verificar acceso
+// ------------------------------------------------------
+// 1. Verificar acceso
+// ------------------------------------------------------
 if (!isLogged() || !isAdmin()) {
     header("Location: index.php");
     exit;
 }
 
-// Obtener lista de usuarios
+// ------------------------------------------------------
+// 2. Obtener lista de usuarios
+// ------------------------------------------------------
 $usuarios = $pdo->query("
     SELECT idUser, nombre, apellidos 
     FROM users_data 
@@ -19,9 +23,32 @@ $exito = $_GET['exito'] ?? '';
 $errores = [];
 if (isset($_GET['error'])) $errores[] = $_GET['error'];
 
+// ------------------------------------------------------
+// 3. Crear cita desde admin
+// ------------------------------------------------------
+if (isset($_POST['crear_cita_admin'])) {
+
+    $idUser = $_POST['idUser'];
+    $fecha = $_POST['fecha_cita'];
+    $motivo = trim($_POST['motivo_cita']);
+
+    if ($fecha < date('Y-m-d')) {
+        header("Location: citas-administracion.php?idUser=$idUser&error=" . urlencode("La fecha debe ser igual o posterior a hoy."));
+        exit;
+    }
+
+    $stmt = $pdo->prepare("
+        INSERT INTO citas (idUser, fecha_cita, motivo_cita)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$idUser, $fecha, $motivo]);
+
+    header("Location: citas-administracion.php?idUser=$idUser&exito=" . urlencode("Cita creada correctamente."));
+    exit;
+}
 
 // ------------------------------------------------------
-// BORRAR CITA
+// 4. Borrar cita
 // ------------------------------------------------------
 if (isset($_GET['borrar'])) {
 
@@ -38,9 +65,8 @@ if (isset($_GET['borrar'])) {
     }
 }
 
-
 // ------------------------------------------------------
-// GUARDAR CAMBIOS DE EDICIÓN
+// 5. Guardar cambios de edición
 // ------------------------------------------------------
 if (isset($_POST['guardar_cambios'])) {
 
@@ -49,19 +75,16 @@ if (isset($_POST['guardar_cambios'])) {
     $motivo = trim($_POST['motivo_cita']);
     $hoy = date('Y-m-d');
 
-    // Obtener idUser de la cita
     $stmt = $pdo->prepare("SELECT idUser FROM citas WHERE idCita=?");
     $stmt->execute([$idCita]);
     $cita = $stmt->fetch();
 
-    // Validación
     if ($fecha < $hoy) {
         $mensaje = urlencode("No puedes mover la cita a una fecha pasada.");
         header("Location: citas-administracion.php?editar=$idCita&idUser={$cita['idUser']}&error=$mensaje");
         exit;
     }
 
-    // Actualizar
     $stmt = $pdo->prepare("
         UPDATE citas
         SET fecha_cita=?, motivo_cita=?
@@ -73,9 +96,8 @@ if (isset($_POST['guardar_cambios'])) {
     exit;
 }
 
-
 // ------------------------------------------------------
-// DETERMINAR idUser SELECCIONADO
+// 6. Determinar idUser seleccionado
 // ------------------------------------------------------
 $idUserSeleccionado = null;
 
@@ -96,9 +118,8 @@ if (isset($_GET['editar'])) {
     $idUserSeleccionado = $_GET['idUser'];
 }
 
-
 // ------------------------------------------------------
-// CARGAR CITA PARA EDICIÓN
+// 7. Cargar cita para edición
 // ------------------------------------------------------
 $citaEditar = null;
 
@@ -108,9 +129,8 @@ if (isset($_GET['editar'])) {
     $citaEditar = $stmt->fetch();
 }
 
-
 // ------------------------------------------------------
-// OBTENER CITAS DEL USUARIO
+// 8. Obtener citas del usuario
 // ------------------------------------------------------
 $citas = [];
 
@@ -125,6 +145,15 @@ if ($idUserSeleccionado) {
     $stmt->execute([$idUserSeleccionado]);
     $citas = $stmt->fetchAll();
 }
+
+// ------------------------------------------------------
+// 9. Especialidades (para creación y edición)
+// ------------------------------------------------------
+$especialidades = [
+    "Medicina General", "Cardiología", "Radiología Digital",
+    "Resonancia Magnética 3D", "Análisis clínicos", "Pediatría",
+    "Fisioterápia", "Oftalmología", "Podología", "Odontología"
+];
 ?>
 
 <?php 
@@ -139,7 +168,6 @@ $isAdmin = true;
 </head>
 
 <body>
-<body>
 
 <?php include 'includes/navbar.php'; ?>
 
@@ -150,22 +178,22 @@ $isAdmin = true;
         <h1 class="admin-title">Administración de citas</h1>
     </section>
 
+    <!-- MENSAJES -->
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <?= $e ?><br>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($exito)): ?>
+        <div class="mensaje-exito"><?= $exito ?></div>
+    <?php endif; ?>
+
     <!-- CONTENIDO PRINCIPAL -->
     <section class="admin-section">
         <div class="admin-container">
-
-            <!-- Mensajes -->
-            <?php if (!empty($errores)): ?>
-                <div class="mensaje-error">
-                    <?php foreach ($errores as $e): ?>
-                        <?= $e ?><br>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!empty($exito)): ?>
-                <div class="mensaje-exito"><?= $exito ?></div>
-            <?php endif; ?>
 
             <!-- Selección de usuario -->
             <form method="GET" class="admin-form">
@@ -185,11 +213,41 @@ $isAdmin = true;
                 <button class="btn btn-primario">Ver citas</button>
             </form>
 
+            <!-- FORMULARIO DE CREACIÓN -->
+            <?php if ($idUserSeleccionado && !$citaEditar): ?>
+                <section class="admin-section">
+
+                    <h2 class="admin-subtitle">Crear nueva cita para este usuario</h2>
+
+                    <form method="POST" class="admin-form-edit">
+
+                        <input type="hidden" name="crear_cita_admin" value="1">
+                        <input type="hidden" name="idUser" value="<?= $idUserSeleccionado ?>">
+
+                        <label>Fecha:</label>
+                        <input type="date" name="fecha_cita" required>
+
+                        <label>Especialidad:</label>
+                        <select name="motivo_cita" required>
+                            <option value="">Seleccione una especialidad</option>
+
+                            <?php foreach ($especialidades as $esp): ?>
+                                <option value="<?= $esp ?>"><?= $esp ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <button class="btn btn-primario">Crear cita</button>
+
+                    </form>
+
+                </section>
+            <?php endif; ?>
+
             <!-- FORMULARIO DE EDICIÓN -->
             <?php if ($citaEditar): ?>
-                <section class="admin-section" style="margin-top: 30px;">
+                <section class="admin-section">
 
-                    <h2>Editando cita</h2>
+                    <h2 class="admin-subtitle">Editando cita</h2>
 
                     <form method="POST" class="admin-form-edit">
 
@@ -203,15 +261,7 @@ $isAdmin = true;
                         <select name="motivo_cita" required>
                             <option value="">Seleccione una especialidad</option>
 
-                            <?php
-                            $especialidades = [
-                                "Medicina General", "Cardiología", "Radiología Digital",
-                                "Resonancia Magnética 3D", "Análisis clínicos", "Pediatría",
-                                "Fisioterápia", "Oftalmología", "Podología", "Odontología"
-                            ];
-
-                            foreach ($especialidades as $esp):
-                            ?>
+                            <?php foreach ($especialidades as $esp): ?>
                                 <option value="<?= $esp ?>" <?= ($citaEditar['motivo_cita'] == $esp) ? 'selected' : '' ?>>
                                     <?= $esp ?>
                                 </option>
@@ -235,11 +285,14 @@ $isAdmin = true;
 
             <?php if (empty($citas)): ?>
 
-                <h2>Este usuario no tiene citas registradas</h2>
+                <!-- PLACEHOLDER CUANDO NO HAY CITAS -->
+                <div class="citas-placeholder">
+                    <p>Este usuario no tiene citas registradas.</p>
+                </div>
 
             <?php else: ?>
 
-                <h2>
+                <h2 class="admin-subtitle">
                     Citas de <?= $citas[0]['nombre'] . " " . $citas[0]['apellidos'] ?>
                 </h2>
 
@@ -261,13 +314,13 @@ $isAdmin = true;
 
                                 <td class="acciones">
 
-                                    <form method="GET" action="citas-administracion.php" style="display:inline;">
+                                    <form method="GET" action="citas-administracion.php" class="form-inline">
                                         <input type="hidden" name="editar" value="<?= $c['idCita'] ?>">
                                         <input type="hidden" name="idUser" value="<?= $idUserSeleccionado ?>">
                                         <button class="btn-accion btn-editar">Editar</button>
                                     </form>
 
-                                    <form method="GET" action="citas-administracion.php" style="display:inline;">
+                                    <form method="GET" action="citas-administracion.php" class="form-inline">
                                         <input type="hidden" name="borrar" value="<?= $c['idCita'] ?>">
                                         <input type="hidden" name="idUser" value="<?= $idUserSeleccionado ?>">
                                         <button class="btn-accion btn-borrar"
@@ -306,5 +359,3 @@ $isAdmin = true;
 
 </body>
 </html>
-
-

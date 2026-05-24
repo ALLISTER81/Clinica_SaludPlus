@@ -18,6 +18,9 @@
 <link rel="stylesheet" href="assets/css/public.css">
 <link rel="stylesheet" href="assets/css/navbar.css">
 
+<!-- ESTILOS FOOTER -->
+<link rel="stylesheet" href="/assets/css/footer.css">
+
 <!-- ESTILOS ADMIN (solo si aplica) -->
 <?php if (isset($isAdmin) && $isAdmin): ?>
     <link rel="stylesheet" href="assets/css/admin.css">

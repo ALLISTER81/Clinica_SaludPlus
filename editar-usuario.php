@@ -16,6 +16,9 @@ if (!isset($_GET['idUser'])) {
 
 $idUser = $_GET['idUser'];
 
+$errores = [];
+$exito = "";
+
 // Obtener datos del usuario
 $stmt = $pdo->prepare("
     SELECT ud.*, ul.usuario, ul.rol 
@@ -30,8 +33,32 @@ if (!$usuario) {
     die("Usuario no encontrado.");
 }
 
-// Guardar cambios
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+/* ============================================================
+   1. CAMBIAR CONTRASEÑA (ADMIN) — SOLO BCRYPT
+   ============================================================ */
+if (isset($_POST['cambiar_password_admin'])) {
+
+    $passwordNueva  = trim($_POST['password_nueva']);
+    $passwordNueva2 = trim($_POST['password_nueva2']);
+
+    if ($passwordNueva !== $passwordNueva2) {
+        $errores[] = "Las nuevas contraseñas no coinciden.";
+    } else {
+
+        // Hash seguro
+        $nuevoHash = password_hash($passwordNueva, PASSWORD_DEFAULT);
+
+        $stmt = $pdo->prepare("UPDATE users_login SET password=? WHERE idUser=?");
+        $stmt->execute([$nuevoHash, $idUser]);
+
+        $exito = "Contraseña actualizada correctamente.";
+    }
+}
+
+/* ============================================================
+   2. GUARDAR CAMBIOS DE DATOS PERSONALES
+   ============================================================ */
+if (isset($_POST['guardar_datos'])) {
 
     $nombre           = trim($_POST['nombre']);
     $apellidos        = trim($_POST['apellidos']);
@@ -67,11 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
     $stmt->execute([$usuario_login, $rol, $idUser]);
 
-    // Redirección con mensaje
     header("Location: usuarios-administracion.php?editado=1");
     exit;
 }
+?>
 
+<?php 
+$pageTitle = "Editar usuario";
+$isAdmin = true;
 ?>
 
 <!DOCTYPE html>
@@ -92,14 +122,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main>
 
-    <!-- TÍTULO PRINCIPAL -->
-    <section class="page-title">
-        <h1 class="admin-title">Editar Usuario</h1>
-    </section>
+    <h1 class="admin-title">Editar Usuario</h1>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <section class="admin-section">
-        <div class="admin-container">        
+        <div class="admin-container">
+
+            <!-- MENSAJES -->
+            <?php if (!empty($exito)): ?>
+                <div class="mensaje-exito"><?= $exito ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($errores)): ?>
+                <div class="mensaje-error">
+                    <?php foreach ($errores as $e): ?>
+                        <?= htmlspecialchars($e) ?><br>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+
+            <!-- ============================================================
+                 FORMULARIO 1 — DATOS PERSONALES
+            ============================================================ -->
+            <h2 class="public-subtitle">Datos personales</h2>
 
             <form method="POST" class="admin-form">
 
@@ -144,12 +189,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="admin" <?= $usuario['rol']=='admin'?'selected':'' ?>>Administrador</option>
                 </select>
 
-                <button type="submit" class="btn btn-primario">Guardar cambios</button>
+                <button type="submit" name="guardar_datos" class="btn btn-primario">
+                    Guardar cambios
+                </button>
+
             </form>
 
-            <a href="usuarios-administracion.php" class="btn btn-primario" style="margin-top:20px;">
-                ← Volver
-            </a>
+
+            <!-- ============================================================
+                 FORMULARIO 2 — CAMBIAR CONTRASEÑA
+            ============================================================ -->
+            <h2 class="public-subtitle">Cambiar contraseña</h2>
+
+            <form method="POST" class="admin-form">
+
+                <label>Nueva contraseña:</label>
+                <input type="password" name="password_nueva" required>
+
+                <label>Repetir nueva contraseña:</label>
+                <input type="password" name="password_nueva2" required>
+
+                <button type="submit" name="cambiar_password_admin" class="btn btn-primario">
+                    Actualizar contraseña
+                </button>
+
+            </form>
+
+            <a href="usuarios-administracion.php" class="btn btn-primario btn-volver">Volver</a>
 
         </div>
     </section>

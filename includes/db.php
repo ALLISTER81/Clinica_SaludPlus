@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost';
-$db   = 'clinica_saludPlus';
-$user = 'root';
-$pass = 'allister';
+$host = "sql309.infinityfree.com";
+$db   = "if0_41947797_clinica_SaludPlus_db";
+$user = "if0_41947797";
+$pass = "8F6yxzAZPt";
 
 try {
     $pdo = new PDO(

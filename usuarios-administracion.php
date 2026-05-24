@@ -1,17 +1,18 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 require_once 'includes/db.php';
 require_once 'includes/auth.php';
 
 $errores = [];
 $exito = '';
 
-// Mensajes después de editar usuario
 if (isset($_GET['editado'])) {
     $exito = "Usuario actualizado correctamente.";
 }
 
-
-// Solo admins
 if (!isLogged() || !isAdmin()) {
     header("Location: index.php");
     exit;
@@ -28,23 +29,23 @@ if (isset($_POST['crear'])) {
     $direccion        = $_POST['direccion'];
     $sexo             = $_POST['sexo'];
 
-    $usuario  = $_POST['usuario'];
+    $usuario  = trim($_POST['usuario']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $rol      = $_POST['rol'];
 
-    // Validación del email
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Validación email
+    if (!preg_match('/^[^@]+@[^@]+\.[^@]+$/', $email)) {
         $errores[] = "El email no es válido.";
     }
 
-    // Validación del usuario (login)
-    if (!preg_match('/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}/', $usuario)) {
-        $errores[] = "El usuario debe incluir mayúscula, minúscula, número y carácter especial (mínimo 6 caracteres).";
+    // Validación usuario (mayúscula + número)
+    if (!preg_match('/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/', $usuario)) {
+        $errores[] = "El usuario debe contener al menos una mayúscula y un número.";
     }
 
     if (empty($errores)) {
         try {
-            // Insertar en users_data
+
             $stmt = $pdo->prepare("
                 INSERT INTO users_data 
                 (nombre, apellidos, email, telefono, fecha_nacimiento, direccion, sexo)
@@ -54,7 +55,6 @@ if (isset($_POST['crear'])) {
 
             $idUser = $pdo->lastInsertId();
 
-            // Insertar en users_login
             $stmt = $pdo->prepare("
                 INSERT INTO users_login 
                 (idUser, usuario, password, rol)
@@ -75,17 +75,13 @@ if (isset($_POST['crear'])) {
     }
 }
 
-
 // Borrar usuario
 if (isset($_GET['borrar'])) {
     $id = $_GET['borrar'];
 
-    // No permitir borrar al propio admin
     if ($id != $_SESSION['idUser']) {
-
         $pdo->prepare("DELETE FROM users_login WHERE idUser = ?")->execute([$id]);
         $pdo->prepare("DELETE FROM users_data  WHERE idUser = ?")->execute([$id]);
-
         $exito = "Usuario eliminado correctamente.";
     }
 }
@@ -104,6 +100,7 @@ $pageTitle = "Administración de Usuarios";
 $isAdmin = true;
 ?>
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -120,25 +117,26 @@ $isAdmin = true;
         <h1 class="admin-title">Administración de usuarios</h1>
     </section>
 
+    <!-- MENSAJES -->
+    <?php if (!empty($errores)): ?>
+        <div class="mensaje-error">
+            <?php foreach ($errores as $e): ?>
+                <p><?= htmlspecialchars($e) ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($exito)): ?>
+        <div class="mensaje-exito">
+            <p><?= htmlspecialchars($exito) ?></p>
+        </div>
+    <?php endif; ?>
+
     <!-- FORMULARIO DE CREACIÓN -->
     <section class="admin-section">
         <div class="admin-container">
 
-            <?php if (!empty($errores)): ?>
-                <div class="mensaje-error">
-                    <?php foreach ($errores as $e): ?>
-                        <p><?= htmlspecialchars($e) ?></p>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!empty($exito)): ?>
-                <div class="mensaje-exito">
-                    <p><?= htmlspecialchars($exito) ?></p>
-                </div>
-            <?php endif; ?>
-
-            <h2>Crear nuevo usuario</h2>
+            <h2 class="admin-subtitle">Crear nuevo usuario</h2>
 
             <form method="POST" class="admin-form">
         
@@ -169,7 +167,9 @@ $isAdmin = true;
                 </select>
 
                 <label>Usuario (login):</label>
-                <input type="text" name="usuario" required>
+                <input type="text" name="usuario" required
+                       pattern="^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$"
+                       title="Debe contener al menos una mayúscula y un número.">
 
                 <label>Contraseña:</label>
                 <input type="password" name="password" required>
@@ -189,7 +189,7 @@ $isAdmin = true;
     <!-- LISTADO DE USUARIOS -->
     <section class="admin-section">
 
-        <h2 class="admin-subtitle" style="text-align:center;">Usuarios existentes</h2>
+        <h2 class="admin-subtitle">Usuarios existentes</h2>
 
         <div class="admin-table-wrapper">
             <table class="admin-table">

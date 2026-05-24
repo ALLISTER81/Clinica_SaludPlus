@@ -2,9 +2,10 @@
 require_once 'includes/db.php';
 
 $stmt = $pdo->query("
-    SELECT idNoticia, titulo, imagen, texto, fecha
-    FROM noticias
-    ORDER BY fecha DESC
+    SELECT n.*, u.nombre, u.apellidos
+    FROM noticias n
+    JOIN users_data u ON n.idUser = u.idUser
+    ORDER BY fecha DESC, idNoticia DESC
 ");
 $noticias = $stmt->fetchAll();
 ?>
@@ -27,28 +28,41 @@ $isAdmin = false;
 <main>
 
     <!-- TÍTULO PRINCIPAL -->
-    <section class="page-title">
-        <h1 class="admin-title">Noticias</h1>
-    </section>
+    <h1 class="admin-title">Noticias</h1>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <section class="admin-section">
-        <div class="container">
+    <section class="noticias-section">
+    <div class="container">
 
-            <div class="contenedor-noticias">
+        <?php if (empty($noticias)): ?>
+            <div class="citas-placeholder">
+                <p>No hay noticias publicadas todavía.</p>
+            </div>
+        <?php else: ?>
+
+            <div class="contenedor-noticias noticias-grid">
 
                 <?php foreach ($noticias as $n): ?>
-                    <div class="card tarjeta-noticia">
+                    <div class="tarjeta-noticia-completa">
 
                         <?php if (!empty($n['imagen'])): ?>
-                            <img src="uploads/<?= $n['imagen'] ?>" alt="<?= $n['titulo'] ?>">
+                            <img src="uploads/<?= htmlspecialchars($n['imagen']) ?>" 
+                                 alt="<?= htmlspecialchars($n['titulo']) ?>">
                         <?php endif; ?>
 
                         <div class="contenido-noticia">
-                            <h3><?= $n['titulo'] ?></h3>
-                            <p class="fecha"><?= date("d/m/Y", strtotime($n['fecha'])) ?></p>
-                            <p><?= substr($n['texto'], 0, 150) ?>...</p>
-                            <a href="noticia-detalles.php?id=<?= $n['idNoticia'] ?>" class="btn btn-primario tarjeta-blog-btn">Leer más</a>
+
+                            <h3><?= htmlspecialchars($n['titulo']) ?></h3>
+
+                            <p class="fecha">
+                                Publicado el <?= date("d/m/Y", strtotime($n['fecha'])) ?>
+                                por <?= htmlspecialchars($n['nombre'] . " " . $n['apellidos']) ?>
+                            </p>
+
+                            <p class="texto-noticia">
+                                <?= nl2br(htmlspecialchars($n['texto'])) ?>
+                            </p>
+
                         </div>
 
                     </div>
@@ -56,8 +70,10 @@ $isAdmin = false;
 
             </div>
 
-        </div>
-    </section>
+        <?php endif; ?>
+
+    </div>
+</section>
 
 </main>
 

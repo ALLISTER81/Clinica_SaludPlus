@@ -33,54 +33,88 @@ function login($usuario, $password) {
     $stmt->execute([$usuario]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
-
-        $_SESSION['idUser'] = $user['idUser'];
-        $_SESSION['rol']    = $user['rol'];
-        $_SESSION['nombre'] = $user['nombre'];
-
-        return true;
+    if (!$user) {
+        return false;
     }
 
-    return false;
+    $storedHash = $user['password'];
+
+    // 1) Si el hash empieza por '$' → asumimos bcrypt/password_hash()
+    if (strpos($storedHash, '$') === 0) {
+
+        // Verificación moderna
+        if (!password_verify($password, $storedHash)) {
+            return false;
+        }
+
+    } else {
+
+        // 2) Compatibilidad con hashes antiguos SHA-256 + SALT fijo
+        $salt = "SALUDPLUS_SALT_2025";
+        $legacyHash = hash('sha256', $password . $salt);
+
+        if (!hash_equals($storedHash, $legacyHash)) {
+            return false;
+        }
+
+        // Si la contraseña antigua es correcta → migrar a bcrypt
+        $newHash = password_hash($password, PASSWORD_DEFAULT);
+
+        $update = $pdo->prepare("
+            UPDATE users_login
+            SET password = ?
+            WHERE idUser = ?
+        ");
+        $update->execute([$newHash, $user['idUser']]);
+
+        // A partir de ahora, ese usuario ya usa bcrypt
+    }
+
+    // Login correcto → guardar sesión
+    $_SESSION['idUser'] = $user['idUser'];
+    $_SESSION['rol']    = $user['rol'];
+    $_SESSION['nombre'] = $user['nombre'];
+
+    return true;
 }
 
 /**
  * Registrar un nuevo usuario
  */
-function registrar($nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo, $rol, $password) {
+function registrar($nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo, $rol, $usuario, $password) {
     global $pdo;
 
-    // 1. Comprobar si el usuario (email) ya existe en users_login
-    $stmt = $pdo->prepare("SELECT idUser FROM users_login WHERE usuario = ?");
-    $stmt->execute([$email]);
+    try {
+        // Insertar en users_data
+        $stmt = $pdo->prepare("
+            INSERT INTO users_data (nombre, apellidos, email, telefono, fecha_nacimiento, direccion, sexo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo]);
 
-    if ($stmt->fetch()) {
-        return false; // Usuario ya registrado
+        $idUser = $pdo->lastInsertId();
+
+        // NUEVO: hash seguro con password_hash()
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        // Insertar en users_login
+        $stmt = $pdo->prepare("
+            INSERT INTO users_login (idUser, usuario, password, rol)
+            VALUES (?, ?, ?, ?)
+        ");
+        $stmt->execute([$idUser, $usuario, $passwordHash, $rol]);
+
+        return true;
+
+    } catch (PDOException $e) {
+
+        if ($e->getCode() == 23000) {
+            return false; // email o usuario duplicado
+        }
+
+        throw $e;
     }
-
-    // 2. Insertar en users_data
-    $stmt = $pdo->prepare("
-        INSERT INTO users_data (nombre, apellidos, email, telefono, fecha_nacimiento, direccion, sexo)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ");
-    $stmt->execute([$nombre, $apellidos, $email, $telefono, $fecha_nacimiento, $direccion, $sexo]);
-
-    // 3. Obtener idUser recién creado
-    $idUser = $pdo->lastInsertId();
-
-    // 4. Insertar en users_login (usuario = email)
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-    $stmt = $pdo->prepare("
-        INSERT INTO users_login (idUser, usuario, password, rol)
-        VALUES (?, ?, ?, ?)
-    ");
-    $stmt->execute([$idUser, $email, $passwordHash, $rol]);
-
-    return true;
 }
-
 
 /**
  * Cerrar sesión
